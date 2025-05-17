@@ -13,6 +13,7 @@ import {
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 export function CTA() {
+  // eslint-disable-next-line
   const theme = useTheme();
 
   return (

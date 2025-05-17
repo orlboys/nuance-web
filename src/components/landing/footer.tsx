@@ -4,7 +4,6 @@ import {
   Typography,
   Grid,
   Link as MuiLink,
-  Divider,
 } from "@mui/material";
 import Link from "next/link";
 
@@ -20,16 +19,16 @@ export function Footer() {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
+          <Grid sx={{ xs: 12, md: 4 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Political Bias Analyzer
+              Nuance AI
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
               An ethical AI tool designed to help you identify political bias in
               text content.
             </Typography>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid sx={{ xs: 12, md: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
               Product
             </Typography>
@@ -51,7 +50,7 @@ export function Footer() {
               ))}
             </Box>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid sx={{ xs: 12, md: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
               Company
             </Typography>
@@ -73,7 +72,7 @@ export function Footer() {
               ))}
             </Box>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid sx={{ xs: 12, md: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
               Legal
             </Typography>

@@ -49,7 +49,7 @@ export function Features() {
         </Typography>
         <Grid container spacing={4}>
           {features.map((feature, index) => (
-            <Grid item xs={12} md={6} lg={3} key={index}>
+            <Grid sx={{ xs: 12, md: 6, lg: 3 }} key={index}>
               <motion.div
                 initial={{ y: 30, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
