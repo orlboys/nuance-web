@@ -38,7 +38,7 @@ const features = [
 export function Features() {
   return (
     <Box sx={{ py: 8, bgcolor: "background.paper" }}>
-      <Container maxWidth="lg">
+      <Container maxWidth="md">
         <Typography
           variant="h3"
           component="h2"
@@ -49,7 +49,7 @@ export function Features() {
         </Typography>
         <Grid container spacing={4}>
           {features.map((feature, index) => (
-            <Grid sx={{ xs: 12, md: 6, lg: 3 }} key={index}>
+            <Grid size={6} key={index}>
               <motion.div
                 initial={{ y: 30, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}

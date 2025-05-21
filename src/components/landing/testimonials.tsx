@@ -48,9 +48,9 @@ export function Testimonials() {
         >
           What Users Say
         </Typography>
-        <Grid container spacing={4}>
+        <Grid container spacing={4} columns={12}>
           {testimonials.map((testimonial, index) => (
-            <Grid sx={{ xs: 12, md: 4 }} key={index}>
+            <Grid size={{ xs: 12, md: 4 }} key={index}>
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
@@ -66,7 +66,14 @@ export function Testimonials() {
                 >
                   <Card sx={{ height: "100%" }}>
                     <CardContent sx={{ p: 4 }}>
-                      <Box sx={{ position: "relative", mb: 3 }}>
+                      <Box
+                        sx={{
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 3,
+                        }}
+                      >
                         <FormatQuoteIcon
                           sx={{
                             position: "absolute",

@@ -14,10 +14,10 @@ interface BiasMeterProps {
 
 export function BiasMeter({ value }: BiasMeterProps) {
   const getColor = (val: number) => {
-    if (val < -30) return "#f44336"; // red
-    if (val < -10) return "#ef5350"; // light red
-    if (val > 30) return "#2196f3"; // blue
-    if (val > 10) return "#42a5f5"; // light blue
+    if (val < -30) return "#42a5f5"; // strong left - blue
+    if (val < -10) return "#2196f3"; // left-leaning - light blue
+    if (val > 30) return "#ef5350"; // strong right - red
+    if (val > 10) return "#f44336"; // right-leaning - light red
     return "#4caf50"; // green
   };
 
@@ -40,9 +40,9 @@ export function BiasMeter({ value }: BiasMeterProps) {
   return (
     <Box sx={{ width: "100%", mt: 2 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-        <Typography color="error">Left</Typography>
+        <Typography color="info">Left</Typography>
         <Typography color="success">Neutral</Typography>
-        <Typography color="info">Right</Typography>
+        <Typography color="error">Right</Typography>
       </Box>
       <Box sx={{ position: "relative", height: "80px" }}>
         <Slider
@@ -53,7 +53,7 @@ export function BiasMeter({ value }: BiasMeterProps) {
           sx={{
             "& .MuiSlider-track": {
               background:
-                "linear-gradient(90deg, #f44336 0%, #4caf50 50%, #2196f3 100%)",
+                "linear-gradient(90deg, #2196f3 0%, #4caf50 50%, #f44336 100%)",
             },
             "& .MuiSlider-thumb": {
               width: 24,
