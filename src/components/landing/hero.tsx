@@ -181,8 +181,8 @@ export function Hero({ onScrollToDemo }: HeroProps) {
                           label={`Bias Score: ${exampleTexts[activeExample].bias}`}
                           color={
                             exampleTexts[activeExample].bias > 0
-                              ? "error"
-                              : "success"
+                              ? "success"
+                              : "error"
                           }
                           variant="outlined"
                         />
