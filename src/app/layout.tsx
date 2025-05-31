@@ -1,21 +1,23 @@
-import type React from "react";
-import type { Metadata } from "next";
-import "./globals.css";
+import { ThemeRegistry } from "@/providers/ThemeRegistry";
+import { Inter } from "next/font/google";
 
-export const metadata: Metadata = {
-  title: "Political Bias Analyzer",
-  description: "AI-powered analysis to reveal hidden bias in any text",
-  generator: "v0.dev",
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Nuance",
+  description: "AI-powered political bias detection",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <ThemeRegistry>{children}</ThemeRegistry>
+      </body>
     </html>
   );
 }

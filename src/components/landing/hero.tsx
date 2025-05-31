@@ -15,6 +15,7 @@ import Grid from "@mui/material/Grid";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Link from "next/link";
 import { BiasMeter } from "@/components/ui/bias-meter";
+import { useTheme } from "@mui/material/styles";
 
 // Example analysis results
 const exampleTexts = [
@@ -66,6 +67,7 @@ interface HeroProps {
 
 export function Hero({ onScrollToDemo }: HeroProps) {
   const [activeExample, setActiveExample] = useState(0);
+  const theme = useTheme();
 
   useEffect(() => {
     // Cycle through examples
@@ -95,26 +97,49 @@ export function Hero({ onScrollToDemo }: HeroProps) {
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <Typography
-                variant="h2"
-                component="h1"
-                sx={{
-                  fontWeight: 800,
-                  mb: 2,
+              <motion.div
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                  duration: 15,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                style={{
                   background:
                     "linear-gradient(90deg, #f44336 0%, #9c27b0 50%, #2196f3 100%)",
+                  backgroundSize: "200% 200%",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
-                  textFillColor: "transparent",
+                  display: "inline-block",
                 }}
               >
-                Uncover Political Bias
-              </Typography>
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  sx={{
+                    fontWeight: 800,
+                    mb: 2,
+                    background: "none", // prevent MUI from overriding the gradient
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    textFillColor: "transparent",
+                  }}
+                >
+                  Uncover Political Bias
+                </Typography>
+              </motion.div>
               <Typography
                 variant="h5"
                 component="h2"
-                sx={{ mb: 4, fontWeight: 300, color: "text.secondary" }}
+                sx={{
+                  mb: 4,
+                  fontWeight: 300,
+                  color: theme.palette.text.secondary,
+                }}
               >
                 AI-powered analysis to reveal hidden bias in any text
               </Typography>
@@ -201,12 +226,15 @@ export function Hero({ onScrollToDemo }: HeroProps) {
         style={{
           position: "absolute",
           bottom: 40,
-          left: "50%",
+          left: "47%",
           transform: "translateX(-50%)",
           textAlign: "center",
         }}
       >
-        <Typography variant="body2" sx={{ mb: 1, color: "text.secondary" }}>
+        <Typography
+          variant="body2"
+          sx={{ mb: 1, color: theme.palette.text.secondary }}
+        >
           Scroll to explore
         </Typography>
         <KeyboardArrowDownIcon color="action" />
