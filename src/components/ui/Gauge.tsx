@@ -6,30 +6,21 @@ import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 
 export interface MeterProps {
   value: number;
-  width?: number;
-  height?: number;
   ariaLabel?: string;
 }
 
-export const Meter = ({
-  value,
-  width = 600,
-  height = 600,
-  ariaLabel = "Bias Meter",
-}: MeterProps) => {
+export const Meter = ({ value, ariaLabel = "Bias Meter" }: MeterProps) => {
   const theme = useTheme();
 
   return (
     <Gauge
       value={Math.ceil(value)}
-      width={width}
-      height={height}
       startAngle={-90}
       endAngle={90}
       aria-label={ariaLabel}
       sx={{
         [`& .${gaugeClasses.valueText}`]: {
-          fontSize: 50,
+          fontSize: 30,
           fill: theme.palette.text.primary,
         },
         [`& .${gaugeClasses.valueArc}`]: {
