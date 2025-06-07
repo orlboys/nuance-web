@@ -41,7 +41,7 @@ interface SignInCardProps {
   ) => void;
 }
 
-export function SignInCard({ onSubmit }: SignInCardProps) {
+export function LogInCard({ onSubmit }: SignInCardProps) {
   const theme = useTheme();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -87,7 +87,7 @@ export function SignInCard({ onSubmit }: SignInCardProps) {
           color: theme.palette.text.primary,
         }}
       >
-        Sign in
+        Log in
       </Typography>
       <Box
         component="form"

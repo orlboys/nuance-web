@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import { SignInCard } from "./components/SignInCard";
+import { LogInCard } from "./components/LogInCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
@@ -59,7 +59,7 @@ export default function SignIn() {
           >
             {/* This Stack is the Card stack. Handles the card itself, which contains the sign-in form */}
             <Content />
-            <SignInCard onSubmit={handleSubmit} />
+            <LogInCard onSubmit={handleSubmit} />
           </Stack>
         </Stack>
       </Stack>
