@@ -33,7 +33,7 @@ export const Meter = ({
           fill: theme.palette.text.primary,
         },
         [`& .${gaugeClasses.valueArc}`]: {
-          fill: theme.palette.primary.main,
+          fill: theme.palette.primary.main, // At some point, change this to a gradient (matching the theme, example in app/components/.tsx)
         },
         [`& .${gaugeClasses.referenceArc}`]: {
           fill: theme.palette.text.disabled,
