@@ -8,7 +8,9 @@ import { AnalysedText } from "./components/AnalysedText";
 
 export default function ResultsPage() {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"), {
+    noSsr: true,
+  }); // use noSsr to fix hydration errors.
 
   return (
     <Stack
@@ -35,8 +37,8 @@ export default function ResultsPage() {
               <Grid size={{ xs: 12, md: 6 }}>
                 <AnalysedText></AnalysedText>
               </Grid>
-            )}
-
+            )}{" "}
+            {/* Only display the text analyzed in larger (desktop / tablet) screens.*/}
             <Grid size={{ xs: 12, md: 6 }}>
               <BiasResultCard />
             </Grid>
