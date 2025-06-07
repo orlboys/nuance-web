@@ -27,8 +27,6 @@ import {
   Menu as MenuIcon,
   AccountCircle,
   Home,
-  Info,
-  Help,
   Login,
   PersonAdd,
   Dashboard,
