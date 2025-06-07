@@ -1,5 +1,7 @@
-import { ThemeRegistry } from "@/providers/ThemeRegistry";
+// app/layout.tsx
 import { Inter } from "next/font/google";
+import { ThemeRegistry } from "@/providers/ThemeRegistry";
+import ClientLayout from "./ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <ThemeRegistry>
+          <ClientLayout>{children}</ClientLayout>
+        </ThemeRegistry>
       </body>
     </html>
   );
