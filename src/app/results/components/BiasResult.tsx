@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Typography,
   Stack,
+  Divider,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
@@ -89,10 +90,10 @@ export function BiasResultCard() {
       }}
     >
       <CardContent>
-        <Typography variant="h4" sx={{ mb: 4 }} gutterBottom>
+        <Typography variant="h4" sx={{ mb: 2, ml: 1 }} gutterBottom>
           Bias Analysis
         </Typography>
-
+        <Divider sx={{ mb: 5 }} />
         <Stack alignItems="center">
           {loading ? (
             <Box sx={{ py: 6 }}>
@@ -155,7 +156,7 @@ export function BiasResultCard() {
                           boxShadow: 2,
                         }}
                       >
-                        <Meter value={biasValue} />
+                        <Meter value={biasValue} fillColor={biasInfo.color} />
                       </Box>
                     </motion.div>
                   </motion.div>

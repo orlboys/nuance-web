@@ -6,10 +6,15 @@ import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 
 export interface MeterProps {
   value: number;
+  fillColor: string;
   ariaLabel?: string;
 }
 
-export const Meter = ({ value, ariaLabel = "Bias Meter" }: MeterProps) => {
+export const Meter = ({
+  value,
+  fillColor,
+  ariaLabel = "Bias Meter",
+}: MeterProps) => {
   const theme = useTheme();
 
   return (
@@ -24,7 +29,7 @@ export const Meter = ({ value, ariaLabel = "Bias Meter" }: MeterProps) => {
           fill: theme.palette.text.primary,
         },
         [`& .${gaugeClasses.valueArc}`]: {
-          fill: theme.palette.primary.main, // At some point, change this to a gradient (matching the theme, example in app/components/.tsx)
+          fill: fillColor,
         },
         [`& .${gaugeClasses.referenceArc}`]: {
           fill: theme.palette.text.disabled,

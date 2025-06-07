@@ -1,13 +1,14 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import { Box, Stack, Paper, Container, Grid, Typography } from "@mui/material";
+import { Stack, Container, Grid, useMediaQuery } from "@mui/material";
 import { Title } from "./components/Title";
 import { BiasResultCard } from "./components/BiasResult";
 import { AnalysedText } from "./components/AnalysedText";
 
 export default function ResultsPage() {
   const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Stack
@@ -30,23 +31,15 @@ export default function ResultsPage() {
 
           {/* Input Text and Bias Analysis Side-by-Side */}
           <Grid container spacing={4} width={"100%"}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <AnalysedText></AnalysedText>
-            </Grid>
+            {!isSmallScreen && (
+              <Grid size={{ xs: 12, md: 6 }}>
+                <AnalysedText></AnalysedText>
+              </Grid>
+            )}
 
             <Grid size={{ xs: 12, md: 6 }}>
               <BiasResultCard />
             </Grid>
-          </Grid>
-
-          {/* Detected Keywords Section - Full Width */}
-          <Grid size={12}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Detected Bias Phrases
-              </Typography>
-              <Box>{/* Render detected keywords here */}</Box>
-            </Paper>
           </Grid>
         </Grid>
       </Container>
