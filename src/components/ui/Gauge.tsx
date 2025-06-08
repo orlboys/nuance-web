@@ -6,7 +6,7 @@ import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 
 export interface MeterProps {
   value: number;
-  fillColor: string;
+  fillColor?: string;
   ariaLabel?: string;
 }
 
@@ -29,7 +29,7 @@ export const Meter = ({
           fill: theme.palette.text.primary,
         },
         [`& .${gaugeClasses.valueArc}`]: {
-          fill: fillColor,
+          fill: fillColor || theme.palette.primary,
         },
         [`& .${gaugeClasses.referenceArc}`]: {
           fill: theme.palette.text.disabled,
