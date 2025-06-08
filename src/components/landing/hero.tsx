@@ -134,7 +134,7 @@ export function Hero({ onScrollToDemo }: HeroProps) {
                       component="h1"
                       sx={{
                         fontWeight: 800,
-                        fontSize: "4rem",
+                        fontSize: "3rem",
                         color: "white",
                         opacity: 0.9,
                         textShadow: "0 0 20px rgba(255,255,255,0.3)",

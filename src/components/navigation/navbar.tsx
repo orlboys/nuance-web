@@ -23,6 +23,7 @@ import {
   ListItemIcon,
   Divider,
 } from "@mui/material";
+import Orb from "@/components/ui/Orb";
 import {
   Menu as MenuIcon,
   AccountCircle,
@@ -217,12 +218,30 @@ export default function NavigationBar({
               cursor: "pointer",
             }}
           >
+            {" "}
             <Box
               component={Link}
               href="/"
               sx={{ textDecoration: "none", color: "inherit" }}
             >
-              Nuance
+              {" "}
+              <Box
+                sx={{
+                  width: "32px",
+                  height: "32px",
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Orb
+                  hoverIntensity={0.5}
+                  rotateOnHover={true}
+                  hue={0}
+                  forceHoverState={false}
+                />
+              </Box>
             </Box>
           </Typography>
 
