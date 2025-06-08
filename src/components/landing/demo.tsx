@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 // import { BiasMeter } from "@/components/ui/bias-meter";
 import { BiasMeter } from "../ui/bias-meter";
+import ShinyText from "../ui/ShinyText";
+
 export function Demo() {
   const [inputText, setInputText] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
@@ -92,7 +94,12 @@ export function Demo() {
                       ) : null
                     }
                   >
-                    {analyzing ? "Analyzing..." : "Analyze Text"}
+                    {" "}
+                    <ShinyText
+                      text={analyzing ? "Analyzing..." : "Analyze Text"}
+                      disabled={!!inputText.trim()}
+                      color={inputText.trim() ? "primary" : undefined}
+                    />
                   </Button>
                 </motion.div>
               </Box>

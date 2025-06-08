@@ -16,6 +16,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Link from "next/link";
 import { BiasMeter } from "@/components/ui/bias-meter";
 import { useTheme } from "@mui/material/styles";
+import Orb from "@/components/ui/Orb";
 
 // Example analysis results
 const exampleTexts = [
@@ -97,41 +98,55 @@ export function Hero({ onScrollToDemo }: HeroProps) {
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <motion.div
-                animate={{
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                style={{
-                  background:
-                    "linear-gradient(90deg, #f44336 0%, #9c27b0 50%, #2196f3 100%)",
-                  backgroundSize: "200% 200%",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  display: "inline-block",
-                }}
-              >
-                <Typography
-                  variant="h2"
-                  component="h1"
+              <Box sx={{ position: "relative", width: "fit-content" }}>
+                <Box
                   sx={{
-                    fontWeight: 800,
-                    mb: 2,
-                    background: "none", // prevent MUI from overriding the gradient
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                    textFillColor: "transparent",
+                    width: "400px",
+                    height: "400px",
+                    position: "relative",
+                    mb: 4,
                   }}
                 >
-                  Uncover Political Bias
-                </Typography>
-              </motion.div>
+                  <Orb
+                    hoverIntensity={0.5}
+                    rotateOnHover={true}
+                    hue={0}
+                    forceHoverState={false}
+                  />{" "}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                      pointerEvents: "none",
+                      zIndex: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h2"
+                      component="h1"
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "4rem",
+                        color: "white",
+                        opacity: 0.9,
+                        textShadow: "0 0 20px rgba(255,255,255,0.3)",
+                        letterSpacing: "0.05em",
+                        filter: "blur(0.4px)",
+                      }}
+                    >
+                      Nuance
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
               <Typography
                 variant="h5"
                 component="h2"
