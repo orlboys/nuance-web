@@ -108,7 +108,7 @@ export function Hero({ onScrollToDemo }: HeroProps) {
                   }}
                 >
                   <Orb
-                    hoverIntensity={0.5}
+                    hoverIntensity={0.2}
                     rotateOnHover={true}
                     hue={0}
                     forceHoverState={false}
