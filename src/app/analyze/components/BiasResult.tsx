@@ -16,7 +16,11 @@ import { useEffect, useState } from "react";
 import { Meter } from "../../../components/ui/Gauge";
 import { motion } from "framer-motion";
 
-export function BiasResultCard() {
+interface BiasResultCardProps {
+  value: number;
+}
+
+export function BiasResultCard({ value }: BiasResultCardProps) {
   const theme = useTheme();
   const [biasValue, setBiasValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +78,7 @@ export function BiasResultCard() {
     return () => clearTimeout(timer);
   }, []);
 
-  const biasInfo = biasValue !== null ? getBiasInfo(biasValue) : null;
+  const biasInfo = value !== null ? getBiasInfo(value) : null;
 
   return (
     <Card
@@ -96,7 +100,7 @@ export function BiasResultCard() {
         <Divider sx={{ mb: 5 }} />
         <Stack alignItems="center">
           {loading ? (
-            <Box sx={{ py: 6 }}>
+            <Box sx={{ py: 6, textAlign: "center" }}>
               <CircularProgress size={60} />
               <Typography variant="body1" sx={{ mt: 2 }}>
                 Analyzing text for political bias...

@@ -14,6 +14,7 @@ import {
   Chip,
   useTheme,
 } from "@mui/material";
+import SplitText from "@/components/ui/SplitText";
 import EditIcon from "@mui/icons-material/Edit";
 import ProfileEditModal from "@/components/home/ProfileEditModal";
 import { useRouter } from "next/navigation";
@@ -104,6 +105,26 @@ export default function HomePage() {
       maxWidth="lg"
       sx={{ py: 4, background: theme.palette.background.default }}
     >
+      <Typography
+        variant="h4"
+        component="h1"
+        align="center"
+        sx={{ fontWeight: "bold", mb: 3 }}
+      >
+        <SplitText
+          text={`Hello, ${user.name}!`}
+          className="text-2xl font-semibold text-center"
+          delay={100}
+          duration={0.6}
+          ease="power3.out"
+          splitType="chars"
+          from={{ opacity: 0, y: 40 }}
+          to={{ opacity: 1, y: 0 }}
+          threshold={0.1}
+          rootMargin="-100px"
+          textAlign="center"
+        />
+      </Typography>
       <Box
         sx={{
           display: "flex",
@@ -173,26 +194,30 @@ export default function HomePage() {
           <Typography variant="body1" paragraph>
             {user.bio}
           </Typography>
-
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={() => router.push("/analyze")}
-            sx={{
-              mt: 2,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
-            }}
-          >
-            Analyze New Text
-          </Button>
         </Paper>
 
         {/* Previous Responses Section */}
         <Box sx={{ flex: 1 }}>
-          <Typography variant="h5" component="h1" sx={{ mb: 3 }}>
-            Previous Analyses
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mb: 3,
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography variant="h5" component="h1">
+              Previous Analyses
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => router.push("/analyze")}
+              sx={{ ml: 2 }}
+            >
+              New Analysis
+            </Button>
+          </Box>
 
           {responses.length > 0 ? (
             <List disablePadding>
