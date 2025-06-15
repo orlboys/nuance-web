@@ -14,7 +14,7 @@ export default function SignIn() {
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async () => {
     if (typeof email === "string" && typeof password === "string") {
       try {
         // 1. Sign up the user
