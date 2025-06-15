@@ -30,13 +30,25 @@ const Card = styled(MuiCard)(({ theme }) => ({
   boxShadow: theme.shadows[4],
 }));
 
-interface SignUpCardProps {
+export interface SignUpCardProps {
   onSubmit: (
     event: React.FormEvent<HTMLFormElement>,
     email: string,
     password: string,
     name: string
-  ) => void;
+  ) => Promise<void>;
+  email?: string;
+  setEmail?: React.Dispatch<React.SetStateAction<string>>;
+  password?: string;
+  setPassword?: React.Dispatch<React.SetStateAction<string>>;
+  username?: string;
+  setUsername?: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export interface formSubmission {
+  email: string;
+  name: string;
+  password: string;
 }
 
 export function LogInCard({ onSubmit }: SignUpCardProps) {
@@ -46,7 +58,7 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
   const [name, setName] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
-  const [nameError, setNameError] = React.useState("");
+  const [usernameError, setUsernameError] = React.useState("");
 
   const validateInputs = () => {
     let valid = true;
@@ -62,11 +74,11 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
     } else {
       setPasswordError("");
     }
-    if (!nameError) {
-      setNameError("Please enter a name");
+    if (!usernameError) {
+      setUsernameError("Please enter a name");
       valid = false;
     } else {
-      setNameError("");
+      setUsernameError("");
     }
     return valid;
   };
@@ -114,6 +126,21 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
           },
         }}
       >
+        <FormControl error={!!usernameError} fullWidth>
+          <FormLabel htmlFor="name">Username</FormLabel>
+          <TextField
+            name="name"
+            placeholder="John"
+            type="text"
+            id="name"
+            required
+            fullWidth
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {usernameError && <FormHelperText>{usernameError}</FormHelperText>}
+        </FormControl>
         <FormControl error={!!emailError} fullWidth>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -146,21 +173,6 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
             onChange={(e) => setPassword(e.target.value)}
           />
           {passwordError && <FormHelperText>{passwordError}</FormHelperText>}
-        </FormControl>
-        <FormControl error={!!nameError} fullWidth>
-          <FormLabel htmlFor="name">First Name</FormLabel>
-          <TextField
-            name="name"
-            placeholder="John"
-            type="text"
-            id="name"
-            required
-            fullWidth
-            variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          {nameError && <FormHelperText>{nameError}</FormHelperText>}
         </FormControl>
         <Button type="submit" fullWidth variant="contained">
           Sign Up

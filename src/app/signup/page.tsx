@@ -2,22 +2,62 @@
 
 import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import { LogInCard } from "./components/LogInCard";
+import { LogInCard } from "./components/SignUpCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
+import { supabase } from "@/lib/supabaseClient"; // Adjust the import based on your project structure
 
 export default function SignIn() {
   const theme = useTheme();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [username, setUsername] = React.useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // Change this eventually to supabase auth
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    if (typeof email === "string" && typeof password === "string") {
+      try {
+        // 1. Sign up the user
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                username: username, // optional, still good for metadata
+              },
+            },
+          });
+
+        if (signUpError) {
+          console.error("Error signing up:", signUpError.message);
+          return;
+        }
+
+        const user = signUpData.user;
+        if (!user) {
+          console.error("User not returned after sign-up.");
+          return;
+        }
+
+        // 2. Insert into 'profiles' table
+        const { error: insertError } = await supabase.from("profiles").insert([
+          {
+            id: user.id, // Match Supabase Auth UID
+            username: username,
+            avatar_url: "", // You can set default or let user upload later
+          },
+        ]);
+
+        if (insertError) {
+          console.error("Error inserting profile:", insertError.message);
+        } else {
+          console.log("Profile created successfully.");
+        }
+      } catch (err) {
+        console.error("Error during sign-up flow:", err);
+      }
+    }
   };
 
   return (
@@ -57,9 +97,16 @@ export default function SignIn() {
               m: "auto",
             }}
           >
-            {/* This Stack is the Card stack. Handles the card itself, which contains the sign-in form */}
             <Content />
-            <LogInCard onSubmit={handleSubmit} />
+            <LogInCard
+              onSubmit={handleSubmit}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              username={username}
+              setUsername={setUsername}
+            />
           </Stack>
         </Stack>
       </Stack>
