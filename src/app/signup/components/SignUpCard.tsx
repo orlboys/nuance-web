@@ -1,17 +1,19 @@
 "use client";
 
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import FormLabel from "@mui/material/FormLabel";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import {
+  Box,
+  Button,
+  Divider,
+  FormLabel,
+  FormControl,
+  FormHelperText,
+  Link,
+  TextField,
+  Typography,
+  Card as MuiCard,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import MuiCard from "@mui/material/Card";
 import { GoogleIcon, FacebookIcon } from "./CustomIcons";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -35,58 +37,61 @@ export interface SignUpCardProps {
     event: React.FormEvent<HTMLFormElement>,
     email: string,
     password: string,
-    name: string
+    username: string
   ) => Promise<void>;
-  email?: string;
-  setEmail?: React.Dispatch<React.SetStateAction<string>>;
-  password?: string;
-  setPassword?: React.Dispatch<React.SetStateAction<string>>;
-  username?: string;
-  setUsername?: React.Dispatch<React.SetStateAction<string>>;
-}
-
-export interface formSubmission {
   email: string;
-  name: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
   password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export function LogInCard({ onSubmit }: SignUpCardProps) {
+export function SignUpCard({
+  onSubmit,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  username,
+  setUsername,
+}: SignUpCardProps) {
   const theme = useTheme();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [name, setName] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const [usernameError, setUsernameError] = React.useState("");
 
   const validateInputs = () => {
     let valid = true;
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError("Please enter a valid email address.");
       valid = false;
     } else {
       setEmailError("");
     }
+
     if (!password || password.length < 6) {
       setPasswordError("Password must be at least 6 characters long.");
       valid = false;
     } else {
       setPasswordError("");
     }
-    if (!usernameError) {
-      setUsernameError("Please enter a name");
+
+    if (!username.trim()) {
+      setUsernameError("Please enter a name.");
       valid = false;
     } else {
       setUsernameError("");
     }
+
     return valid;
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (validateInputs()) {
-      onSubmit(event, email, password, name);
+      await onSubmit(event, email, password, username);
     }
   };
 
@@ -103,6 +108,7 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
       >
         Sign Up
       </Typography>
+
       <Box
         component="form"
         onSubmit={handleFormSubmit}
@@ -127,29 +133,27 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
         }}
       >
         <FormControl error={!!usernameError} fullWidth>
-          <FormLabel htmlFor="name">Username</FormLabel>
+          <FormLabel htmlFor="username">Username</FormLabel>
           <TextField
-            name="name"
-            placeholder="John"
+            id="username"
             type="text"
-            id="name"
+            placeholder="username"
             required
             fullWidth
             variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           {usernameError && <FormHelperText>{usernameError}</FormHelperText>}
         </FormControl>
+
         <FormControl error={!!emailError} fullWidth>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
             id="email"
             type="email"
-            name="email"
             placeholder="your@email.com"
             autoComplete="email"
-            autoFocus
             required
             fullWidth
             variant="outlined"
@@ -158,13 +162,13 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
           />
           {emailError && <FormHelperText>{emailError}</FormHelperText>}
         </FormControl>
+
         <FormControl error={!!passwordError} fullWidth>
           <FormLabel htmlFor="password">Password</FormLabel>
           <TextField
-            name="password"
-            placeholder="••••••"
-            type="password"
             id="password"
+            type="password"
+            placeholder="••••••"
             autoComplete="current-password"
             required
             fullWidth
@@ -174,10 +178,12 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
           />
           {passwordError && <FormHelperText>{passwordError}</FormHelperText>}
         </FormControl>
+
         <Button type="submit" fullWidth variant="contained">
           Sign Up
         </Button>
       </Box>
+
       <Divider
         sx={{
           "&::before, &::after": {
@@ -188,6 +194,7 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
       >
         or
       </Divider>
+
       <Box
         sx={{
           display: "flex",
@@ -210,6 +217,7 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
         >
           Sign Up with Google
         </Button>
+
         <Button
           fullWidth
           variant="outlined"
@@ -218,6 +226,7 @@ export function LogInCard({ onSubmit }: SignUpCardProps) {
         >
           Sign Up with Facebook
         </Button>
+
         <Typography
           sx={{
             textAlign: "center",

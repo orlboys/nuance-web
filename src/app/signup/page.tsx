@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import { LogInCard } from "./components/SignUpCard";
+import { SignUpCard } from "./components/SignUpCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
@@ -17,7 +17,7 @@ export default function SignIn() {
   const handleSubmit = async () => {
     if (typeof email === "string" && typeof password === "string") {
       try {
-        // 1. Sign up the user
+        // 1. Sign up the user - this should insert the user into the auth.users table and the profiles table
         const { data: signUpData, error: signUpError } =
           await supabase.auth.signUp({
             email,
@@ -38,21 +38,6 @@ export default function SignIn() {
         if (!user) {
           console.error("User not returned after sign-up.");
           return;
-        }
-
-        // 2. Insert into 'profiles' table
-        const { error: insertError } = await supabase.from("profiles").insert([
-          {
-            id: user.id, // Match Supabase Auth UID
-            username: username,
-            avatar_url: "", // You can set default or let user upload later
-          },
-        ]);
-
-        if (insertError) {
-          console.error("Error inserting profile:", insertError.message);
-        } else {
-          console.log("Profile created successfully.");
         }
       } catch (err) {
         console.error("Error during sign-up flow:", err);
@@ -98,7 +83,7 @@ export default function SignIn() {
             }}
           >
             <Content />
-            <LogInCard
+            <SignUpCard
               onSubmit={handleSubmit}
               email={email}
               setEmail={setEmail}
