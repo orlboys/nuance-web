@@ -26,7 +26,7 @@ const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Arial", "Inter", "Roboto", "Helvetica", sans-serif',
     h1: {
       fontSize: "3.5rem",
       fontWeight: 700,

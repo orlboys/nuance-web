@@ -6,7 +6,7 @@ import { LogInCard } from "./components/LogInCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
-import { supabase } from "@/lib/supabaseClient"; // Adjust the import based on your project structure
+import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {

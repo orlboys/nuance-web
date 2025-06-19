@@ -6,13 +6,19 @@ import { SignUpCard } from "./components/SignUpCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
-import { supabase } from "@/lib/supabaseClient"; // Adjust the import based on your project structure
+import { supabase } from "@/lib/supabaseClient";
 
 export default function SignIn() {
   const theme = useTheme();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
+
+  // This function handles the sign-up process.
+  // - Reads the email, password, and username from state.
+  // - Calls Supabase's signUp method to create a new user.
+  // - If successful, the user is inserted into the auth.users table and the profiles table.
+  // - Handles any errors that occur during the sign-up process.
 
   const handleSubmit = async () => {
     if (typeof email === "string" && typeof password === "string") {
