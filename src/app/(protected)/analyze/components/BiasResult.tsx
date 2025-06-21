@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
-import { Meter } from "../../../components/ui/Gauge";
+import { Meter } from "@/components/ui/Gauge";
 import { motion } from "framer-motion";
 
 interface BiasResultCardProps {

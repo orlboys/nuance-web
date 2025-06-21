@@ -1,7 +1,7 @@
-// app/layout.tsx
 import { Inter } from "next/font/google";
 import { ThemeRegistry } from "@/providers/ThemeRegistry";
-import ClientLayout from "./ClientLayout";
+import NavigationBar from "@/components/navigation/navbar";
+import ScrollToTop from "@/components/navigation/scrollToTop";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ThemeRegistry>
-          <ClientLayout>{children}</ClientLayout>
+          <NavigationBar />
+          {children}
+          <ScrollToTop />
         </ThemeRegistry>
       </body>
     </html>

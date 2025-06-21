@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import SplitText from "@/components/ui/SplitText";
 import EditIcon from "@mui/icons-material/Edit";
-import ProfileEditModal from "@/components/home/ProfileEditModal";
+import ProfileEditModal from "@/components/dashboard/ProfileEditModal";
 import { useRouter } from "next/navigation";
 
 // Mock user data - in a real app, this would come from your authentication system

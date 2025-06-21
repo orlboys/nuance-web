@@ -24,7 +24,7 @@ export default function SignIn() {
       console.error("Error signing in:", error);
     } else {
       console.log("User signed in:", data);
-      router.push("/home"); // Redirect to home page after successful login
+      router.push("/dashboard"); // Redirect to home page after successful login
     }
   };
 

@@ -32,30 +32,45 @@ import {
   Dashboard,
   Settings,
   Logout,
-  Balance,
 } from "@mui/icons-material";
+import { useUser } from "@/lib/hooks/useUser";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 interface NavigationBarProps {
-  isLoggedIn?: boolean;
   userName?: string;
   userAvatar?: string;
-  onLogin?: () => void;
-  onSignup?: () => void;
-  onLogout?: () => void;
 }
 
 export default function NavigationBar({
-  isLoggedIn = false,
   userName = "",
   userAvatar = "",
-  onLogin,
-  onSignup,
-  onLogout,
 }: NavigationBarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, loading } = useUser(); // useUser hook to get user info.
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
+  const router = useRouter();
+
+  const onLogin = () => {
+    router.push("/login");
+  };
+
+  const onSignup = () => {
+    router.push("/signup");
+  };
+
+  const onLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Logout error:", error.message);
+    }
+    setAnchorEl(null); // Close the menu after logout
+    router.push("/"); // Redirect to dashboard or home after logout
+  };
+
+  const isLoggedIn = !loading && !!user; // Determine logged-in state based on user hook
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -69,10 +84,12 @@ export default function NavigationBar({
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const navigationItems = [
-    { label: "Home", href: "/", icon: <Home /> },
-    { label: "Analyze Text", href: "/analyze", icon: <Balance /> },
-  ];
+  const navigationItems = !isLoggedIn
+    ? [{ label: "Home", href: "/", icon: <Home /> }]
+    : [
+        { label: "Home", href: "/", icon: <Home /> },
+        { label: "Dashboard", href: "/dashboard", icon: <Dashboard /> },
+      ];
 
   const MobileMenu = () => (
     <Drawer
@@ -158,7 +175,6 @@ export default function NavigationBar({
               component={Link}
               href="/settings"
               onClick={handleMobileMenuToggle}
-              sx={{ textDecoration: "none", color: "inherit" }}
             >
               <ListItemIcon sx={{ color: theme.palette.primary.main }}>
                 <Settings />
@@ -167,7 +183,6 @@ export default function NavigationBar({
             </ListItem>
             <ListItem
               onClick={() => {
-                handleMobileMenuToggle();
                 onLogout?.();
               }}
               sx={{ cursor: "pointer" }}
