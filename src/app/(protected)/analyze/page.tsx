@@ -16,41 +16,45 @@ import { Title } from "./components/Title";
 import { BiasResultCard } from "./components/BiasResult";
 import { motion } from "framer-motion";
 import ShinyText from "@/components/ui/ShinyText";
+import { apiClient, BiasResponse } from "@/lib/api";
 
 export default function ResultsPage() {
   const theme = useTheme();
 
   const [text, setText] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
-  type BiasResult = { bias: number; keywords: string[] };
-  const [result, setResult] = useState<BiasResult | null>(null);
+  const [result, setResult] = useState<BiasResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  // This function handles the submission of the text for bias analysis.
+  // It uses the API client to call the bias analysis endpoint.
   const handleSubmit = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      setError("Please enter some text to analyze.");
+      return;
+    } // Prevent submission of empty text
 
-    // Simulate an API call to analyze bias
-    // Replace this with your actual API call logic
     setAnalyzing(true);
-    setTimeout(() => {
+    try {
+      const biasData = await apiClient.analyzeBias(text.trim());
+      setResult(biasData);
+      console.log("Bias analysis result:", biasData);
+      setError(null);
+    } catch (error) {
+      console.error("Error during bias analysis:", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred during analysis.");
+      }
+    } finally {
       setAnalyzing(false);
-    }, 2000); // Simulate a delay for analysis
-    setResult({
-      bias: Math.floor(Math.random() * 100), // Simulated bias score
-      keywords: text.split(" ").slice(0, 3), // Simulated keywords
-    });
-
-    //   try {
-    //     const response = await fetch("/api/analyze", {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({ text }),
-    //     });
-    //     const data = await response.json();
-    //     setResult(data);
-    //   } catch (err) {
-    //     console.error("Error analyzing bias:", err);
-    //   }
+    }
   };
+
+  const formatCompound = (value: number): number => {
+    return Math.floor((value + 1) * 50);
+  }; // Converts compound score from [-1, 1] to [0, 100]
 
   return (
     <Stack
@@ -111,8 +115,16 @@ export default function ResultsPage() {
 
             {/* Right side: Result */}
             <Grid size={{ xs: 12, md: 6 }}>
-              {result ? (
-                <BiasResultCard value={result.bias} />
+              {error ? (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              ) : result ? (
+                <BiasResultCard
+                  value={formatCompound(result.bias.compound)}
+                  confidence={Number(result.bias.confidence.toPrecision(2))}
+                  // prediction={result.bias.prediction}
+                />
               ) : (
                 <Typography variant="body1" color="text.secondary">
                   The bias analysis result will appear here after submission.

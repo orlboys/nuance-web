@@ -26,6 +26,8 @@ export interface BiasScores {
   left: number;
   neutral: number;
   right: number;
+  compound: number;
+  confidence: number;
   prediction: number;
   error?: string;
 }

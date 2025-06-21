@@ -18,9 +18,11 @@ import { motion } from "framer-motion";
 
 interface BiasResultCardProps {
   value: number;
+  confidence: number; // optional, used for the confidence level of the bias prediction
+  // prediction: number; // kind of a backup for the getBiasInfo function, its the class that is actually guessed by the model [0, 1, 2]
 }
 
-export function BiasResultCard({ value }: BiasResultCardProps) {
+export function BiasResultCard({ value, confidence }: BiasResultCardProps) {
   const theme = useTheme();
   const [biasValue, setBiasValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,12 +73,11 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const randomBias = Math.floor(Math.random() * 100);
-      setBiasValue(randomBias);
+      setBiasValue(value);
       setLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [value]);
 
   const biasInfo = value !== null ? getBiasInfo(value) : null;
 
@@ -161,6 +162,20 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
                         }}
                       >
                         <Meter value={biasValue} fillColor={biasInfo.color} />
+                      </Box>
+                      <Box sx={{ mt: 2, textAlign: "center" }}>
+                        <Chip
+                          sx={{
+                            mt: 2,
+                            maxWidth: "90%",
+                            mx: "auto",
+                            textAlign: "center",
+                          }}
+                          label={`Confidence: ${(confidence * 100).toFixed(
+                            2
+                          )}%`}
+                          variant="outlined"
+                        />
                       </Box>
                     </motion.div>
                   </motion.div>
