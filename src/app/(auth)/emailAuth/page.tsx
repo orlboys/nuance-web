@@ -24,7 +24,15 @@ export default function EmailAuth() {
         variant="outlined"
         sx={{ p: 4, maxWidth: 600, height: "40%", textAlign: "center" }}
       >
-        <CheckCircle />
+        <Box>
+          <CheckCircle
+            sx={{
+              color: (theme) => theme.palette.success.main,
+              fontSize: 60,
+              mb: 2,
+            }}
+          />
+        </Box>
         <Typography variant="h4" sx={{ mb: 2 }}>
           You&apos;re In! Just a few more steps.
         </Typography>

@@ -7,12 +7,14 @@ import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const theme = useTheme();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
+  const router = useRouter();
 
   // This function handles the sign-up process.
   // - Reads the email, password, and username from state.
@@ -30,10 +32,11 @@ export default function SignIn() {
             password,
             options: {
               data: {
-                username: username, // optional, still good for metadata
+                username: username,
               },
             },
           });
+        router.push("/emailAuth"); // Redirect to home page after successful sign-up
 
         if (signUpError) {
           console.error("Error signing up:", signUpError.message);
