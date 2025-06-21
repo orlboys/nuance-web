@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import { ThemeRegistry } from "@/providers/ThemeRegistry";
 import NavigationBar from "@/components/navigation/navbar";
 import ScrollToTop from "@/components/navigation/scrollToTop";
+import { ApiDownWarning } from "@/components/global/apiDownWarning";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function RootLayout({
           <NavigationBar />
           {children}
           <ScrollToTop />
+          <ApiDownWarning />
         </ThemeRegistry>
       </body>
     </html>

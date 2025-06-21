@@ -96,7 +96,13 @@ class ApiClient {
     }
     async healthCheck(): Promise<{ status: string, message: string }> {
         const endpoint = '/health';
+        try {
         return this.makeRequest<{ status: string, message: string }>(endpoint); // Call the makeRequest method with the endpoint
+        }
+        catch {
+            return {status: "", message:"Cannpt connect to Nuance-API"};
+        }
+
     }
 }
 
