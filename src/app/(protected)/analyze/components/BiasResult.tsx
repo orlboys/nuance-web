@@ -19,6 +19,7 @@ interface BiasResultCardProps {
   value: number;
   confidence: number; // optional, used for the confidence level of the bias prediction
   loading: boolean;
+  handleSubmit: () => Promise<void>;
   // prediction: number; // kind of a backup for the getBiasInfo function, its the class that is actually guessed by the model [0, 1, 2]
 }
 

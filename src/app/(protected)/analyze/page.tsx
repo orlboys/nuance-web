@@ -17,6 +17,7 @@ import { BiasResultCard } from "./components/BiasResult";
 import { motion } from "framer-motion";
 import ShinyText from "@/components/ui/ShinyText";
 import { apiClient, BiasResponse } from "@/lib/api";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ResultsPage() {
   const theme = useTheme();
@@ -28,7 +29,7 @@ export default function ResultsPage() {
 
   // This function handles the submission of the text for bias analysis.
   // It uses the API client to call the bias analysis endpoint.
-  const handleSubmit = async () => {
+  const handleAnalysisSubmit = async () => {
     if (!text.trim()) {
       setError("Please enter some text to analyze.");
       return;
@@ -39,6 +40,7 @@ export default function ResultsPage() {
       const biasData = await apiClient.analyzeBias(text.trim());
       setResult(biasData);
       console.log("Bias analysis result:", biasData);
+      handleSaveSubmit();
       setError(null);
     } catch (error) {
       console.error("Error during bias analysis:", error);
@@ -49,6 +51,30 @@ export default function ResultsPage() {
       }
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  // Handles saving the results to database
+  const handleSaveSubmit = async () => {
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+    if (!userId) {
+      setError("User not authenticated.");
+      return;
+    }
+    if (!result || typeof result.bias?.compound !== "number") {
+      // To ensure bias results exist
+      setError("No valid analysis result to save.");
+      return;
+    }
+    const { error: insertError } = await supabase.from("requests").insert({
+      user_id: userId,
+      input_text: text,
+      bias_value: (result.bias.compound + 1) * 50,
+      confidence: result.bias.confidence,
+    });
+    if (insertError) {
+      setError(insertError.message);
     }
   };
 
@@ -100,7 +126,7 @@ export default function ResultsPage() {
                     variant="contained"
                     color="primary"
                     size="large"
-                    onClick={handleSubmit}
+                    onClick={handleAnalysisSubmit}
                     disabled={!text.trim()}
                   >
                     <ShinyText
@@ -120,12 +146,15 @@ export default function ResultsPage() {
                   {error}
                 </Alert>
               ) : result ? (
-                <BiasResultCard
-                  value={formatCompound(result.bias.compound)}
-                  confidence={Number(result.bias.confidence.toPrecision(2))}
-                  loading={analyzing}
-                  // prediction={result.bias.prediction}
-                />
+                <>
+                  <BiasResultCard
+                    value={formatCompound(result.bias.compound)}
+                    confidence={Number(result.bias.confidence.toPrecision(2))}
+                    loading={analyzing}
+                    handleSubmit={handleSaveSubmit}
+                    // prediction={result.bias.prediction}
+                  />
+                </>
               ) : (
                 <Typography variant="body1" color="text.secondary">
                   The bias analysis result will appear here after submission.
