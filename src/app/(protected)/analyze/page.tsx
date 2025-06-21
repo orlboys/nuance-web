@@ -123,6 +123,7 @@ export default function ResultsPage() {
                 <BiasResultCard
                   value={formatCompound(result.bias.compound)}
                   confidence={Number(result.bias.confidence.toPrecision(2))}
+                  loading={analyzing}
                   // prediction={result.bias.prediction}
                 />
               ) : (
