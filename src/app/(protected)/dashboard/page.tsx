@@ -20,13 +20,7 @@ import ProfileEditModal from "@/components/dashboard/ProfileEditModal";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
-type UserProfile = {
-  // defines the properties of the User Profile
-  username: string;
-  email: string;
-  bio: string;
-  avatar: string;
-};
+import { UserProfile } from "@/types/UserProfile";
 
 type Response = {
   id: number;
@@ -35,8 +29,6 @@ type Response = {
   biasScore: number;
   label: string;
 };
-
-type updatedProfile = UserProfile;
 
 export default function HomePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -68,7 +60,7 @@ export default function HomePage() {
           username: data.username,
           email: data.email,
           bio: data.bio,
-          avatar: data.avatar,
+          avatar_url: data.avatar_url,
         });
       }
       setLoading(false);
@@ -114,7 +106,7 @@ export default function HomePage() {
     }
   }, [loading, user, router]);
 
-  const handleProfileUpdate = (updatedProfile: updatedProfile) => {
+  const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUser({ ...user, ...updatedProfile });
     setIsModalOpen(false);
   };
@@ -232,7 +224,7 @@ export default function HomePage() {
             }}
           >
             <Avatar
-              src={user.avatar}
+              src={user.avatar_url}
               alt={user.username}
               sx={{
                 width: 100,

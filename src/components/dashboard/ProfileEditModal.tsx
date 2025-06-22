@@ -13,19 +13,13 @@ import {
   IconButton,
 } from "@mui/material";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-
-export type UserProfile = {
-  username: string;
-  email: string;
-  bio: string;
-  avatar: string;
-};
+import { supabase } from "@/lib/supabaseClient";
+import { UserProfile } from "@/types/UserProfile";
 
 type FormErrors = {
   username?: string;
-  email?: string;
   bio?: string;
-  avatar?: string;
+  avatar_url?: string;
   [key: string]: string | undefined;
 };
 
@@ -44,7 +38,7 @@ export default function ProfileEditModal({
     username: user?.username || "",
     email: user?.email || "",
     bio: user?.bio || "",
-    avatar: user?.avatar || "",
+    avatar_url: user?.avatar_url || "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -71,19 +65,58 @@ export default function ProfileEditModal({
       newErrors.username = "Username is required";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      onSave(formData);
+      // Get the current user ID
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData?.user?.id;
+      if (!userId) {
+        setErrors((prev) => ({ ...prev, username: "User not authenticated" }));
+        return;
+      }
+
+      const { data: profile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (fetchError || !profile) {
+        setErrors((prev) => ({
+          ...prev,
+          username: "Profile does not exist for this user.",
+        }));
+        return;
+      }
+
+      console.log({
+        username: formData.username,
+        bio: formData.bio,
+        avatar_url: formData.avatar_url,
+      });
+      // Update the profile in Supabase
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          username: formData.username,
+          bio: formData.bio,
+          avatar_url: formData.avatar_url,
+        })
+        .eq("id", userId);
+
+      if (error) {
+        setErrors((prev) => ({
+          ...prev,
+          username: "Failed to update profile",
+        }));
+        return;
+      }
+
+      onSave(formData); // Update parent state
     }
   };
 
@@ -93,7 +126,7 @@ export default function ProfileEditModal({
     )}`;
     setFormData((prev) => ({
       ...prev,
-      avatar: mockNewAvatarUrl,
+      avatar_url: mockNewAvatarUrl,
     }));
   };
 
@@ -110,7 +143,7 @@ export default function ProfileEditModal({
             }}
           >
             <Avatar
-              src={formData.avatar}
+              src={formData.avatar_url}
               alt={formData.username}
               sx={{ width: 100, height: 100 }}
             />
@@ -137,17 +170,6 @@ export default function ProfileEditModal({
             fullWidth
             error={!!errors.username}
             helperText={errors.username}
-          />
-
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            error={!!errors.email}
-            helperText={errors.email}
           />
 
           <TextField
