@@ -134,12 +134,13 @@ export function Hero({ onScrollToDemo }: HeroProps) {
                       component="h1"
                       sx={{
                         fontWeight: 800,
-                        fontSize: "4rem",
+                        fontSize: "3.5rem",
                         color: "white",
                         opacity: 0.9,
                         textShadow: "0 0 20px rgba(255,255,255,0.3)",
                         letterSpacing: "0.05em",
                         filter: "blur(0.4px)",
+                        fontFamily: "Inter, Arial, sans-serif",
                       }}
                     >
                       Nuance

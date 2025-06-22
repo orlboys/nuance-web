@@ -6,18 +6,26 @@ import { LogInCard } from "./components/LogInCard";
 import { Stack } from "@mui/material";
 import Content from "./components/Content";
 import { useTheme } from "@mui/material/styles";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const theme = useTheme();
+  const router = useRouter();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // Change this eventually to supabase auth
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: event.currentTarget.email.value,
+      password: event.currentTarget.password.value,
     });
+
+    if (error) {
+      console.error("Error signing in:", error);
+    } else {
+      console.log("User signed in:", data);
+      router.push("/dashboard"); // Redirect to home page after successful login
+    }
   };
 
   return (

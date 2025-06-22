@@ -13,19 +13,13 @@ import {
   IconButton,
 } from "@mui/material";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-
-type FormData = {
-  name: string;
-  email: string;
-  bio: string;
-  avatar: string;
-};
+import { supabase } from "@/lib/supabaseClient";
+import { UserProfile } from "@/types/UserProfile";
 
 type FormErrors = {
-  name?: string;
-  email?: string;
+  username?: string;
   bio?: string;
-  avatar?: string;
+  avatar_url?: string;
   [key: string]: string | undefined;
 };
 
@@ -37,14 +31,14 @@ export default function ProfileEditModal({
 }: {
   open: boolean;
   onClose: () => void;
-  user: Partial<FormData>;
-  onSave: (data: FormData) => void;
+  user: Partial<UserProfile>;
+  onSave: (data: UserProfile) => void;
 }) {
-  const [formData, setFormData] = useState<FormData>({
-    name: user?.name || "",
+  const [formData, setFormData] = useState<UserProfile>({
+    username: user?.username || "",
     email: user?.email || "",
     bio: user?.bio || "",
-    avatar: user?.avatar || "",
+    avatar_url: user?.avatar_url || "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -56,7 +50,6 @@ export default function ProfileEditModal({
       [name]: value,
     }));
 
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -68,35 +61,72 @@ export default function ProfileEditModal({
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      onSave(formData);
+      // Get the current user ID
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData?.user?.id;
+      if (!userId) {
+        setErrors((prev) => ({ ...prev, username: "User not authenticated" }));
+        return;
+      }
+
+      const { data: profile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (fetchError || !profile) {
+        setErrors((prev) => ({
+          ...prev,
+          username: "Profile does not exist for this user.",
+        }));
+        return;
+      }
+
+      console.log({
+        username: formData.username,
+        bio: formData.bio,
+        avatar_url: formData.avatar_url,
+      });
+      // Update the profile in Supabase
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          username: formData.username,
+          bio: formData.bio,
+          avatar_url: formData.avatar_url,
+        })
+        .eq("id", userId);
+
+      if (error) {
+        setErrors((prev) => ({
+          ...prev,
+          username: "Failed to update profile",
+        }));
+        return;
+      }
+
+      onSave(formData); // Update parent state
     }
   };
 
-  // In a real app, this would handle file uploads
   const handleAvatarChange = () => {
-    // Mock implementation - in a real app, this would open a file picker
-    const mockNewAvatarUrl = `/placeholder.svg?height=100&width=100&text=${formData.name.charAt(
+    const mockNewAvatarUrl = `/placeholder.svg?height=100&width=100&text=${formData.username.charAt(
       0
     )}`;
     setFormData((prev) => ({
       ...prev,
-      avatar: mockNewAvatarUrl,
+      avatar_url: mockNewAvatarUrl,
     }));
   };
 
@@ -105,7 +135,6 @@ export default function ProfileEditModal({
       <DialogTitle>Edit Profile</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
-          {/* Avatar Upload */}
           <Box
             sx={{
               display: "flex",
@@ -114,8 +143,8 @@ export default function ProfileEditModal({
             }}
           >
             <Avatar
-              src={formData.avatar}
-              alt={formData.name}
+              src={formData.avatar_url}
+              alt={formData.username}
               sx={{ width: 100, height: 100 }}
             />
             <IconButton
@@ -134,24 +163,13 @@ export default function ProfileEditModal({
           </Box>
 
           <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
+            label="Username"
+            name="username"
+            value={formData.username}
             onChange={handleChange}
             fullWidth
-            error={!!errors.name}
-            helperText={errors.name}
-          />
-
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            error={!!errors.email}
-            helperText={errors.email}
+            error={!!errors.username}
+            helperText={errors.username}
           />
 
           <TextField

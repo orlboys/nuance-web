@@ -16,65 +16,97 @@ import {
 } from "@mui/material";
 import SplitText from "@/components/ui/SplitText";
 import EditIcon from "@mui/icons-material/Edit";
-import ProfileEditModal from "@/components/home/ProfileEditModal";
+import ProfileEditModal from "@/components/dashboard/ProfileEditModal";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
-// Mock user data - in a real app, this would come from your authentication system
-const mockUser = {
-  id: "1",
-  name: "Jane Doe",
-  email: "jane.doe@example.com",
-  avatar: "/placeholder.svg?height=100&width=100",
-  bio: "Interested in unbiased political analysis and ethical AI applications.",
-};
+import { UserProfile } from "@/types/UserProfile";
 
-// Mock previous responses
-const mockResponses = [
-  {
-    id: "1",
-    text: 'The statement "All politicians are corrupt" shows clear negative bias and overgeneralization.',
-    date: "2023-06-10T14:30:00Z",
-    biasScore: 0.78,
-    biasType: "Negative",
-  },
-  {
-    id: "2",
-    text: "The economic policy proposed by the current administration aims to reduce inflation through controlled spending.",
-    date: "2023-06-08T09:15:00Z",
-    biasScore: 0.12,
-    biasType: "Neutral",
-  },
-  {
-    id: "3",
-    text: "Progressive tax policies always lead to greater economic equality and prosperity for all citizens.",
-    date: "2023-06-05T16:45:00Z",
-    biasScore: 0.65,
-    biasType: "Positive",
-  },
-];
-
-type updatedProfile = {
-  name: string;
-  email: string;
-  bio: string;
-  avatar: string;
+type Response = {
+  id: number;
+  text: string;
+  time: Date;
+  biasScore: number;
+  label: string;
 };
 
 export default function HomePage() {
-  const [user, setUser] = useState(mockUser);
-  // eslint-disable-next-line
-  const [responses, setResponses] = useState(mockResponses);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [responses, setResponses] = useState<Response[] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const theme = useTheme();
 
-  // In a real app, you would fetch the user data and responses from your API
   useEffect(() => {
-    // Fetch user data
-    // Fetch previous responses
-  }, []);
+    async function fetchUserInfo() {
+      // Get the user info based off the current session's user id.
+      setLoading(true); // required to ensure user info is fetched before being checked.
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData.user?.id;
+      if (!userId) {
+        setUser(null);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      if (error || !data) {
+        setUser(null);
+      } else {
+        setUser({
+          username: data.username,
+          email: data.email,
+          bio: data.bio,
+          avatar_url: data.avatar_url,
+        });
+      }
+      setLoading(false);
+    }
 
-  const handleProfileUpdate = (updatedProfile: updatedProfile) => {
+    function determineLabel(value: number) {
+      if (value < 10) return "Far Left";
+      if (value < 35) return "Left";
+      if (value < 45) return "Slightly Left";
+      if (value <= 55) return "Neutral";
+      if (value <= 65) return "Slightly Right";
+      if (value <= 90) return "Right";
+      return "Far Right";
+    }
+    async function fetchPreviousAnalysis() {
+      const { data, error } = await supabase
+        .from("requests")
+        .select("*")
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .order("created_at", { ascending: true });
+
+      if (error || !data) {
+        setResponses(null);
+      } else {
+        // Mapping the fetched data from supabase into an array of responses
+        const mapped: Response[] = data.map((item) => ({
+          id: item.id,
+          text: item.input_text,
+          time: new Date(item.created_at),
+          biasScore: item.bias_value,
+          label: determineLabel(item.bias_value),
+        }));
+        setResponses(mapped);
+      }
+    }
+    fetchUserInfo();
+    fetchPreviousAnalysis();
+  }, [router, theme]);
+
+  useEffect(() => {
+    if (!loading && user === null) {
+      router.push("/login");
+    }
+  }, [loading, user, router]);
+
+  const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUser({ ...user, ...updatedProfile });
     setIsModalOpen(false);
   };
@@ -89,17 +121,35 @@ export default function HomePage() {
     });
   };
 
-  const getBiasColor = (biasType: string) => {
-    switch (biasType.toLowerCase()) {
-      case "negative":
-        return "error";
-      case "positive":
-        return "success";
-      default:
-        return "default";
+  const getBiasColor = (label: string) => {
+    if (label) {
+      switch (label.toLowerCase()) {
+        case "far left":
+          return theme.palette.info.dark;
+        case "left":
+          return theme.palette.info.main;
+        case "slightly left":
+          return theme.palette.info.light;
+        case "neutral":
+          return theme.palette.success.main;
+        case "slightly right":
+          return theme.palette.warning.light;
+        case "right":
+          return theme.palette.warning.main;
+        case "far right":
+          return theme.palette.error.main;
+        default:
+          return "default";
+      }
     }
+    return "default";
   };
-
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+  if (user == null) {
+    return null;
+  }
   return (
     <Container
       maxWidth="lg"
@@ -112,7 +162,7 @@ export default function HomePage() {
         sx={{ fontWeight: "bold", mb: 3 }}
       >
         <SplitText
-          text={`Hello, ${user.name}!`}
+          text={`Hello, ${user.username}!`}
           className="text-2xl font-semibold text-center"
           delay={100}
           duration={0.6}
@@ -174,8 +224,8 @@ export default function HomePage() {
             }}
           >
             <Avatar
-              src={user.avatar}
-              alt={user.name}
+              src={user.avatar_url}
+              alt={user.username}
               sx={{
                 width: 100,
                 height: 100,
@@ -184,7 +234,7 @@ export default function HomePage() {
               }}
             />
             <Typography variant="h6" component="h2">
-              {user.name}
+              {user.username}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {user.email}
@@ -219,43 +269,38 @@ export default function HomePage() {
             </Button>
           </Box>
 
-          {responses.length > 0 ? (
+          {responses && responses.length > 0 ? (
             <List disablePadding>
-              {
-                //eslint-disable-next-line
-                responses.map((response, index) => (
-                  <Card
-                    key={response.id}
-                    sx={{ mb: 2, background: theme.palette.background.paper }}
-                  >
-                    <CardContent>
-                      <Box
+              {responses.map((response) => (
+                <Card
+                  key={response.id}
+                  sx={{ mb: 2, background: theme.palette.background.paper }}
+                >
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 1,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        {formatDate(response.time)}
+                      </Typography>
+                      <Chip
+                        label={`${response.label} (${response.biasScore}%)`}
+                        size="small"
+                        variant="outlined"
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
+                          borderColor: theme.palette.divider,
+                          bgcolor: getBiasColor(response.label),
                         }}
-                      >
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(response.date)}
-                        </Typography>
-                        <Chip
-                          label={`${response.biasType} (${(
-                            response.biasScore * 100
-                          ).toFixed(0)}%)`}
-                          size="small"
-                          color={getBiasColor(response.biasType)}
-                          variant="outlined"
-                          sx={{
-                            borderColor: theme.palette.divider,
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="body1">{response.text}</Typography>
-                    </CardContent>
-                  </Card>
-                ))
-              }
+                      />
+                    </Box>
+                    <Typography variant="body1">{response.text}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
             </List>
           ) : (
             <Paper

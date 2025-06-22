@@ -12,18 +12,23 @@ import {
   Divider,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useEffect, useState } from "react";
-import { Meter } from "../../../components/ui/Gauge";
+import { Meter } from "@/components/ui/Gauge";
 import { motion } from "framer-motion";
 
 interface BiasResultCardProps {
   value: number;
+  confidence: number; // optional, used for the confidence level of the bias prediction
+  loading: boolean;
+  handleSubmit: () => Promise<void>;
+  // prediction: number; // kind of a backup for the getBiasInfo function, its the class that is actually guessed by the model [0, 1, 2]
 }
 
-export function BiasResultCard({ value }: BiasResultCardProps) {
+export function BiasResultCard({
+  value,
+  confidence,
+  loading,
+}: BiasResultCardProps) {
   const theme = useTheme();
-  const [biasValue, setBiasValue] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const getBiasInfo = (value: number) => {
     if (value < 10)
@@ -69,15 +74,6 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
     };
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const randomBias = Math.floor(Math.random() * 100);
-      setBiasValue(randomBias);
-      setLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const biasInfo = value !== null ? getBiasInfo(value) : null;
 
   return (
@@ -107,7 +103,7 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
               </Typography>
             </Box>
           ) : (
-            biasValue !== null &&
+            value !== null &&
             biasInfo && (
               <>
                 <Box sx={{ mb: 4, textAlign: "center" }}>
@@ -126,7 +122,7 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
                     variant="h6"
                     sx={{ mt: 2, color: "text.secondary" }}
                   >
-                    Bias Score: {biasValue}
+                    Bias Score: {value}
                   </Typography>
                 </Box>
 
@@ -160,7 +156,21 @@ export function BiasResultCard({ value }: BiasResultCardProps) {
                           boxShadow: 2,
                         }}
                       >
-                        <Meter value={biasValue} fillColor={biasInfo.color} />
+                        <Meter value={value} fillColor={biasInfo.color} />
+                      </Box>
+                      <Box sx={{ mt: 2, textAlign: "center" }}>
+                        <Chip
+                          sx={{
+                            mt: 2,
+                            maxWidth: "90%",
+                            mx: "auto",
+                            textAlign: "center",
+                          }}
+                          label={`Confidence: ${(confidence * 100).toFixed(
+                            2
+                          )}%`}
+                          variant="outlined"
+                        />
                       </Box>
                     </motion.div>
                   </motion.div>
