@@ -100,7 +100,7 @@ class ApiClient {
         return this.makeRequest<{ status: string, message: string }>(endpoint); // Call the makeRequest method with the endpoint
         }
         catch {
-            return {status: "", message:"Cannpt connect to Nuance-API"};
+            return {status: "", message:"Cannot connect to Nuance-API"};
         }
 
     }

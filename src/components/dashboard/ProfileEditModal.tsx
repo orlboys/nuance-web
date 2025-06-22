@@ -14,15 +14,15 @@ import {
 } from "@mui/material";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 
-type FormData = {
-  name: string;
+export type UserProfile = {
+  username: string;
   email: string;
   bio: string;
   avatar: string;
 };
 
 type FormErrors = {
-  name?: string;
+  username?: string;
   email?: string;
   bio?: string;
   avatar?: string;
@@ -37,11 +37,11 @@ export default function ProfileEditModal({
 }: {
   open: boolean;
   onClose: () => void;
-  user: Partial<FormData>;
-  onSave: (data: FormData) => void;
+  user: Partial<UserProfile>;
+  onSave: (data: UserProfile) => void;
 }) {
-  const [formData, setFormData] = useState<FormData>({
-    name: user?.name || "",
+  const [formData, setFormData] = useState<UserProfile>({
+    username: user?.username || "",
     email: user?.email || "",
     bio: user?.bio || "",
     avatar: user?.avatar || "",
@@ -56,7 +56,6 @@ export default function ProfileEditModal({
       [name]: value,
     }));
 
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -68,8 +67,8 @@ export default function ProfileEditModal({
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
     }
 
     if (!formData.email.trim()) {
@@ -88,10 +87,8 @@ export default function ProfileEditModal({
     }
   };
 
-  // In a real app, this would handle file uploads
   const handleAvatarChange = () => {
-    // Mock implementation - in a real app, this would open a file picker
-    const mockNewAvatarUrl = `/placeholder.svg?height=100&width=100&text=${formData.name.charAt(
+    const mockNewAvatarUrl = `/placeholder.svg?height=100&width=100&text=${formData.username.charAt(
       0
     )}`;
     setFormData((prev) => ({
@@ -105,7 +102,6 @@ export default function ProfileEditModal({
       <DialogTitle>Edit Profile</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
-          {/* Avatar Upload */}
           <Box
             sx={{
               display: "flex",
@@ -115,7 +111,7 @@ export default function ProfileEditModal({
           >
             <Avatar
               src={formData.avatar}
-              alt={formData.name}
+              alt={formData.username}
               sx={{ width: 100, height: 100 }}
             />
             <IconButton
@@ -134,13 +130,13 @@ export default function ProfileEditModal({
           </Box>
 
           <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
+            label="Username"
+            name="username"
+            value={formData.username}
             onChange={handleChange}
             fullWidth
-            error={!!errors.name}
-            helperText={errors.name}
+            error={!!errors.username}
+            helperText={errors.username}
           />
 
           <TextField

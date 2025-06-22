@@ -40,7 +40,7 @@ export default function ResultsPage() {
       const biasData = await apiClient.analyzeBias(text.trim());
       setResult(biasData);
       console.log("Bias analysis result:", biasData);
-      handleSaveSubmit();
+      handleSaveSubmit(biasData);
       setError(null);
     } catch (error) {
       console.error("Error during bias analysis:", error);
@@ -55,23 +55,23 @@ export default function ResultsPage() {
   };
 
   // Handles saving the results to database
-  const handleSaveSubmit = async () => {
+  const handleSaveSubmit = async (biasResult = result) => {
+    // Parameter is required b/c handleAnalysisSubmit is asynchronous
     const user = await supabase.auth.getUser();
     const userId = user.data.user?.id;
     if (!userId) {
       setError("User not authenticated.");
       return;
     }
-    if (!result || typeof result.bias?.compound !== "number") {
-      // To ensure bias results exist
+    if (!biasResult || typeof biasResult.bias?.compound !== "number") {
       setError("No valid analysis result to save.");
       return;
     }
     const { error: insertError } = await supabase.from("requests").insert({
       user_id: userId,
       input_text: text,
-      bias_value: (result.bias.compound + 1) * 50,
-      confidence: result.bias.confidence,
+      bias_value: (biasResult.bias.compound + 1) * 50,
+      confidence: biasResult.bias.confidence,
     });
     if (insertError) {
       setError(insertError.message);
