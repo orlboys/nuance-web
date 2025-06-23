@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import {
   Stack,
@@ -11,6 +11,7 @@ import {
   Typography,
   Alert,
   Box,
+  Skeleton,
 } from "@mui/material";
 import { Title } from "./components/Title";
 import { BiasResultCard } from "./components/BiasResult";
@@ -18,18 +19,49 @@ import { motion } from "framer-motion";
 import ShinyText from "@/components/ui/ShinyText";
 import { apiClient, BiasResponse } from "@/lib/api";
 import { supabase } from "@/lib/supabaseClient";
+import { useSearchParams } from "next/navigation";
 
 export default function ResultsPage() {
   const theme = useTheme();
 
+  const searchParams = useSearchParams();
+  const resultId = searchParams.get("id");
   const [text, setText] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<BiasResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingResult, setLoadingResult] = useState(false);
+
+  useEffect(() => {
+    if (!resultId) return;
+    const fetchResultById = async () => {
+      setLoadingResult(true);
+      const { data, error } = await supabase
+        .from("requests")
+        .select("id, input_text, bias_value, confidence, created_at")
+        .eq("id", resultId)
+        .single();
+      if (error) {
+        setError("Could not fetch result: " + error.message);
+        setResult(null);
+      } else if (data) {
+        setResult({
+          bias: {
+            compound: data.bias_value / 50 - 1,
+            confidence: data.confidence,
+          },
+        } as BiasResponse);
+        setText(data.input_text);
+      }
+      setLoadingResult(false);
+    };
+    fetchResultById();
+  }, [resultId]);
 
   // This function handles the submission of the text for bias analysis.
   // It uses the API client to call the bias analysis endpoint.
   const handleAnalysisSubmit = async () => {
+    if (resultId) return;
     if (!text.trim()) {
       setError("Please enter some text to analyze.");
       return;
@@ -78,9 +110,101 @@ export default function ResultsPage() {
     }
   };
 
+  // Skeleton component for the result section
+  const ResultSkeleton = () => (
+    <Box>
+      <Skeleton variant="text" sx={{ fontSize: "1.5rem", mb: 2 }} width="60%" />
+      <Skeleton
+        variant="rectangular"
+        height={200}
+        sx={{ mb: 2, borderRadius: 2 }}
+      />
+      <Box alignItems="center">
+        <Skeleton variant="text" width="40%" sx={{ mb: 1 }} />
+        <Skeleton variant="text" width="80%" sx={{ mb: 2 }} />
+      </Box>
+    </Box>
+  );
+
+  const PageSkeleton = () => (
+    <Stack
+      component="main"
+      alignItems="center"
+      sx={{
+        bgcolor: theme.palette.background.default,
+        color: theme.palette.text.primary,
+        minHeight: "100vh",
+        width: "100vw",
+        py: 4,
+      }}
+    >
+      <Container>
+        <Grid container spacing={4}>
+          {/* Title Skeleton */}
+          <Grid size={12} sx={{ mt: 4, mb: 2 }}>
+            <Box sx={{ textAlign: "center" }}>
+              <Skeleton
+                variant="text"
+                sx={{ fontSize: "3rem", mx: "auto" }}
+                width="60%"
+              />
+              <Skeleton
+                variant="text"
+                sx={{ fontSize: "1.2rem", mx: "auto" }}
+                width="40%"
+              />
+            </Box>
+          </Grid>
+
+          {/* Input and Result Skeletons Side-by-Side */}
+          <Grid container spacing={4} width={"100%"}>
+            {/* Left side: Input Skeleton */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Skeleton
+                variant="text"
+                sx={{ fontSize: "1.5rem", mb: 3 }}
+                width="50%"
+              />
+              <Skeleton
+                variant="rectangular"
+                height={280}
+                sx={{ mb: 3, borderRadius: 1 }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Skeleton
+                  variant="rectangular"
+                  height={48}
+                  width={150}
+                  sx={{ borderRadius: 1 }}
+                />
+              </Box>
+            </Grid>
+
+            {/* Right side: Result Skeleton */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <ResultSkeleton />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        {/* Bottom Alert Skeleton */}
+        <Box sx={{ maxWidth: "90%", mx: "auto", mt: 4 }}>
+          <Skeleton
+            variant="rectangular"
+            height={80}
+            sx={{ borderRadius: 1 }}
+          />
+        </Box>
+      </Container>
+    </Stack>
+  );
   const formatCompound = (value: number): number => {
     return Math.floor((value + 1) * 50);
   }; // Converts compound score from [-1, 1] to [0, 100]
+
+  if (loadingResult) {
+    return <PageSkeleton />;
+  }
 
   return (
     <Stack
@@ -116,6 +240,7 @@ export default function ResultsPage() {
                 variant="outlined"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                disabled={!!resultId}
               />
               <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                 <motion.div
@@ -127,7 +252,7 @@ export default function ResultsPage() {
                     color="primary"
                     size="large"
                     onClick={handleAnalysisSubmit}
-                    disabled={!text.trim()}
+                    disabled={!text.trim() || !!resultId}
                   >
                     <ShinyText
                       text={analyzing ? "Analyzing..." : "Analyze Text"}
@@ -150,11 +275,13 @@ export default function ResultsPage() {
                   <BiasResultCard
                     value={formatCompound(result.bias.compound)}
                     confidence={Number(result.bias.confidence.toPrecision(2))}
-                    loading={analyzing}
+                    loading={false}
                     handleSubmit={handleSaveSubmit}
                     // prediction={result.bias.prediction}
                   />
                 </>
+              ) : analyzing ? (
+                <ResultSkeleton />
               ) : (
                 <Typography variant="body1" color="text.secondary">
                   The bias analysis result will appear here after submission.

@@ -23,12 +23,12 @@ export interface SimpleSentimentResponse {
 }
 
 export interface BiasScores {
-  left: number;
-  neutral: number;
-  right: number;
+  left?: number;
+  neutral?: number;
+  right?: number;
   compound: number;
   confidence: number;
-  prediction: number;
+  prediction?: number;
   error?: string;
 }
 

@@ -13,6 +13,7 @@ import {
   CardContent,
   Chip,
   useTheme,
+  Stack,
 } from "@mui/material";
 import SplitText from "@/components/ui/SplitText";
 import EditIcon from "@mui/icons-material/Edit";
@@ -37,6 +38,22 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const theme = useTheme();
+
+  // Move handlePreviousAnalysisSubmit outside useEffect so it can be used in JSX
+  function handlePreviousAnalysisSubmit(response: Response) {
+    const params = new URLSearchParams({ id: response.id.toString() });
+    router.push("/analyze?" + params.toString());
+  }
+
+  function determineLabel(value: number) {
+    if (value < 10) return "Far Left";
+    if (value < 35) return "Left";
+    if (value < 45) return "Slightly Left";
+    if (value <= 55) return "Neutral";
+    if (value <= 65) return "Slightly Right";
+    if (value <= 90) return "Right";
+    return "Far Right";
+  }
 
   useEffect(() => {
     async function fetchUserInfo() {
@@ -66,21 +83,12 @@ export default function HomePage() {
       setLoading(false);
     }
 
-    function determineLabel(value: number) {
-      if (value < 10) return "Far Left";
-      if (value < 35) return "Left";
-      if (value < 45) return "Slightly Left";
-      if (value <= 55) return "Neutral";
-      if (value <= 65) return "Slightly Right";
-      if (value <= 90) return "Right";
-      return "Far Right";
-    }
     async function fetchPreviousAnalysis() {
       const { data, error } = await supabase
         .from("requests")
         .select("*")
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (error || !data) {
         setResponses(null);
@@ -297,7 +305,20 @@ export default function HomePage() {
                         }}
                       />
                     </Box>
-                    <Typography variant="body1">{response.text}</Typography>
+                    <Stack justifyContent="space-between" direction="row">
+                      <Typography variant="body1">
+                        {response.text.length > 100
+                          ? response.text.slice(0, 100) + "..."
+                          : response.text}
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        sx={{ mt: 2, width: 50 }}
+                        onClick={() => handlePreviousAnalysisSubmit(response)}
+                      >
+                        Open
+                      </Button>
+                    </Stack>
                   </CardContent>
                 </Card>
               ))}
