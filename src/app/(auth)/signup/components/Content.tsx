@@ -5,7 +5,6 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import UpdateIcon from "@mui/icons-material/Update";
-import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import CodeIcon from "@mui/icons-material/Code";
 import { useTheme } from "@mui/material/styles";
 
@@ -21,12 +20,6 @@ const items = [
     title: "Real-Time Analysis",
     description:
       "Process and analyze incoming text instantly, so you get bias insights as soon as data arrives.",
-  },
-  {
-    icon: <VisibilityRoundedIcon sx={{ color: "text.secondary" }} />,
-    title: "Explainable Results",
-    description:
-      "Understand why the model made each prediction with token-level attention visualizations.",
   },
   {
     icon: <CodeIcon sx={{ color: "text.secondary" }} />,

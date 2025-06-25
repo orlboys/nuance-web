@@ -8,7 +8,6 @@ import { Features } from "@/components/landing/features";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Testimonials } from "@/components/landing/testimonials";
 import { CTA } from "@/components/landing/cta";
-import { Footer } from "@/components/landing/footer";
 import { Box, Stack } from "@mui/material";
 
 export default function LandingPage() {
@@ -43,9 +42,6 @@ export default function LandingPage() {
       </Box>
       <Box component="section">
         <CTA />
-      </Box>
-      <Box component="footer">
-        <Footer />
       </Box>
     </Stack>
   );

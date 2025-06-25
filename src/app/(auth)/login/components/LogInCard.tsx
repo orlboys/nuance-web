@@ -14,8 +14,6 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled, useTheme } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
-import ForgotPassword from "./ForgotPassword";
-import { GoogleIcon, FacebookIcon } from "./CustomIcons";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -47,10 +45,6 @@ export function LogInCard({ onSubmit }: SignInCardProps) {
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   const validateInputs = () => {
     let valid = true;
@@ -149,19 +143,9 @@ export function LogInCard({ onSubmit }: SignInCardProps) {
           control={<Checkbox value="remember" color="primary" />}
           label="Remember me"
         />
-        <ForgotPassword open={open} handleClose={handleClose} />
         <Button type="submit" fullWidth variant="contained">
           Sign in
         </Button>
-        <Link
-          component="button"
-          type="button"
-          onClick={handleClickOpen}
-          variant="body2"
-          sx={{ alignSelf: "center" }}
-        >
-          Forgot your password?
-        </Link>
       </Box>
       <Divider
         sx={{
@@ -187,22 +171,6 @@ export function LogInCard({ onSubmit }: SignInCardProps) {
           },
         }}
       >
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign in with Google")}
-          startIcon={<GoogleIcon />}
-        >
-          Sign in with Google
-        </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign in with Facebook")}
-          startIcon={<FacebookIcon />}
-        >
-          Sign in with Facebook
-        </Button>
         <Typography
           sx={{
             textAlign: "center",

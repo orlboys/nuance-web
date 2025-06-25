@@ -64,7 +64,31 @@ export function Features() {
                   }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <Card sx={{ height: "100%" }}>
+                  <Card sx={{ height: "100%", position: "relative" }}>
+                    {index === 2 && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 16,
+                          right: 16,
+                          zIndex: 1,
+                          opacity: 0.5,
+                          transform: "rotate(15deg)",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 800,
+                            color: "primary.main",
+                            letterSpacing: 2,
+                          }}
+                        >
+                          WIP
+                        </Typography>
+                      </Box>
+                    )}
                     <CardContent sx={{ p: 4, textAlign: "center" }}>
                       <Box sx={{ mb: 2, color: "primary.main" }}>
                         {feature.icon}

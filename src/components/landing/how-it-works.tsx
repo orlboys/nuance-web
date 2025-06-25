@@ -31,8 +31,7 @@ const steps = [
   },
   {
     title: "Detailed Results",
-    description:
-      "Receive a comprehensive report with bias score, key phrases, and explanations.",
+    description: "Receive a comprehensive bias score and confidence reading.",
   },
 ];
 
