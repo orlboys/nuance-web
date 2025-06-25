@@ -12,6 +12,9 @@ import {
   Alert,
   Box,
   Skeleton,
+  CardContent,
+  Card,
+  Divider,
 } from "@mui/material";
 import { Title } from "./components/Title";
 import { BiasResultCard } from "./components/BiasResult";
@@ -336,7 +339,7 @@ function ResultsPageContent() {
         </AnimatePresence>
         <Grid container spacing={4}>
           {/* Title */}
-          <Grid size={12} sx={{ mt: 4, mb: 2 }}>
+          <Grid size={12} sx={{ mt: 4 }}>
             <Title />
           </Grid>
 
@@ -344,39 +347,67 @@ function ResultsPageContent() {
           <Grid container spacing={4} width={"100%"}>
             {/* Left side: Analyzed Text */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="h6" mb={3}>
-                Enter Text to Analyze
-              </Typography>
-              <TextField
-                label="Your text"
-                multiline
-                rows={10}
-                fullWidth
-                variant="outlined"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                disabled={!!resultId}
-              />
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    onClick={handleAnalysisSubmit}
-                    disabled={!text.trim() || !!resultId}
+              <Card
+                elevation={0}
+                sx={{
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  p: 3,
+                  maxWidth: "700px",
+                  mx: "auto",
+                  my: 1,
+                  height: "95%",
+                  bgcolor: theme.palette.background.paper,
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h4"
+                    fontWeight={600}
+                    sx={{ mb: 2, ml: 1 }}
+                    gutterBottom
                   >
-                    <ShinyText
-                      text={analyzing ? "Analyzing..." : "Analyze Text"}
-                      disabled={!!text.trim()}
-                      color={text.trim() ? "primary" : undefined}
-                    />
-                  </Button>
-                </motion.div>
-              </Box>
+                    Enter Text
+                  </Typography>
+                  <Divider sx={{ mb: 5 }} />
+                  <TextField
+                    label="Your text"
+                    multiline
+                    rows={10}
+                    fullWidth
+                    variant="outlined"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    disabled={!!resultId}
+                    placeholder="Enter or paste the text you want to analyze for political bias..."
+                    sx={{ height: "100%" }}
+                  />
+                  {!resultId && ( // only show analysis submit button if the text box is there.
+                    <Box
+                      sx={{ display: "flex", justifyContent: "center", mt: 3 }}
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="large"
+                          onClick={handleAnalysisSubmit}
+                          disabled={!text.trim() || !!resultId}
+                        >
+                          <ShinyText
+                            text={analyzing ? "Analyzing..." : "Analyze Text"}
+                            disabled={!!text.trim() || !!resultId}
+                            color={text.trim() ? "primary" : undefined}
+                          />
+                        </Button>
+                      </motion.div>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
             </Grid>
 
             {/* Right side: Result */}
@@ -392,22 +423,18 @@ function ResultsPageContent() {
                     confidence={Number(result.bias.confidence.toPrecision(2))}
                     loading={analyzing}
                     onOpenFeedback={handleOpenFeedback}
-                    // prediction={result.bias.prediction}
+                    // prediction={result.bias.prediction} --> Include if you want to use the model's inbuilt prediction methodology
                   />
                 </>
               ) : analyzing ? (
                 <ResultSkeleton />
-              ) : (
-                <Typography variant="body1" color="text.secondary">
-                  The bias analysis result will appear here after submission.
-                </Typography>
-              )}
+              ) : null}
             </Grid>
           </Grid>
         </Grid>
         <Alert
           severity={"info"}
-          sx={{ maxWidth: "90%", mx: "auto", mt: 4 }}
+          sx={{ maxWidth: "90%", mx: "auto", mt: 6 }}
           variant="outlined"
           icon={false}
         >

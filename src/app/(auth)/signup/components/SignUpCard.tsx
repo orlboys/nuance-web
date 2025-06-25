@@ -12,9 +12,9 @@ import {
   TextField,
   Typography,
   Card as MuiCard,
+  Alert,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { GoogleIcon, FacebookIcon } from "./CustomIcons";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -45,6 +45,7 @@ export interface SignUpCardProps {
   setPassword: React.Dispatch<React.SetStateAction<string>>;
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
+  signUpError: string;
 }
 
 export function SignUpCard({
@@ -55,6 +56,7 @@ export function SignUpCard({
   setPassword,
   username,
   setUsername,
+  signUpError,
 }: SignUpCardProps) {
   const theme = useTheme();
   const [emailError, setEmailError] = React.useState("");
@@ -97,6 +99,9 @@ export function SignUpCard({
 
   return (
     <Card variant="outlined">
+      {signUpError && (
+        <Alert severity="error">{"Sign Up Error: " + signUpError}</Alert>
+      )}
       <Typography
         component="h1"
         variant="h4"
@@ -182,6 +187,26 @@ export function SignUpCard({
         <Button type="submit" fullWidth variant="contained">
           Sign Up
         </Button>
+        <Typography
+          sx={{
+            textAlign: "center",
+            color: theme.palette.text.secondary,
+          }}
+        >
+          By signing up, you agree to our{" "}
+          <Link
+            href="/privacy"
+            variant="body2"
+            sx={{
+              color: theme.palette.primary.main,
+              "&:hover": {
+                color: theme.palette.primary.light,
+              },
+            }}
+          >
+            Privacy Policy
+          </Link>
+        </Typography>
       </Box>
 
       <Divider
@@ -209,24 +234,6 @@ export function SignUpCard({
           },
         }}
       >
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign in with Google")}
-          startIcon={<GoogleIcon />}
-        >
-          Sign Up with Google
-        </Button>
-
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign in with Facebook")}
-          startIcon={<FacebookIcon />}
-        >
-          Sign Up with Facebook
-        </Button>
-
         <Typography
           sx={{
             textAlign: "center",

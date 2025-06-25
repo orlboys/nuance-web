@@ -80,19 +80,25 @@ export function BiasResultCard({
 
   return (
     <Card
-      elevation={4}
+      elevation={0}
       sx={{
-        borderRadius: 3,
+        borderRadius: 1,
         overflow: "hidden",
         p: 3,
         maxWidth: "700px",
         mx: "auto",
-        my: 4,
+        my: 1,
         bgcolor: theme.palette.background.paper,
+        height: "95%",
       }}
     >
       <CardContent>
-        <Typography variant="h4" sx={{ mb: 2, ml: 1 }} gutterBottom>
+        <Typography
+          variant="h4"
+          fontWeight={600}
+          sx={{ mb: 2, ml: 1 }}
+          gutterBottom
+        >
           Bias Analysis
         </Typography>
         <Divider sx={{ mb: 5 }} />

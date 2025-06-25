@@ -14,6 +14,7 @@ export default function SignIn() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
+  const [signUpError, setSignUpError] = React.useState<string>("");
   const router = useRouter();
 
   // This function handles the sign-up process.
@@ -22,35 +23,70 @@ export default function SignIn() {
   // - If successful, the user is inserted into the auth.users table and the profiles table.
   // - Handles any errors that occur during the sign-up process.
 
-  const handleSubmit = async () => {
-    if (typeof email === "string" && typeof password === "string") {
-      try {
-        // 1. Sign up the user - this should insert the user into the auth.users table and the profiles table
-        const { data: signUpData, error: signUpError } =
-          await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                username: username,
-              },
-            },
-          });
-        router.push("/emailAuth"); // Redirect to home page after successful sign-up
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+    email: string,
+    password: string,
+    username: string
+  ) => {
+    event.preventDefault();
 
-        if (signUpError) {
-          console.error("Error signing up:", signUpError.message);
-          return;
-        }
+    try {
+      const [
+        { data: emailMatches, error: emailError },
+        { data: usernameMatches, error: usernameError },
+      ] = await Promise.all([
+        supabase.from("profiles").select("id").eq("email", email),
+        supabase.from("profiles").select("id").eq("username", username),
+      ]);
 
-        const user = signUpData.user;
-        if (!user) {
-          console.error("User not returned after sign-up.");
-          return;
-        }
-      } catch (err) {
-        console.error("Error during sign-up flow:", err);
+      if (emailError || usernameError) {
+        console.error("Supabase query error:", emailError || usernameError);
+        setSignUpError("Something went wrong checking for duplicates.");
+        return;
       }
+
+      if (
+        (emailMatches?.length ?? 0) > 0 ||
+        (usernameMatches?.length ?? 0) > 0
+      ) {
+        setSignUpError(
+          "An account with this email or username already exists."
+        );
+        return;
+      }
+
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { username },
+          },
+        });
+
+      if (signUpError) {
+        console.error("Supabase signUp error:", signUpError.message);
+        setSignUpError(signUpError.message);
+        return;
+      }
+
+      if (!signUpData.user) {
+        setSignUpError("Signup succeeded, but no user object was returned.");
+        return;
+      }
+
+      router.push("/emailAuth");
+    } catch (err: unknown) {
+      const message =
+        typeof err === "object" && err !== null && "message" in err
+          ? (err as { message?: string }).message
+          : typeof err === "object" &&
+            err !== null &&
+            "error_description" in err
+          ? (err as { error_description?: string }).error_description
+          : "Unexpected error occurred. Please try again.";
+      setSignUpError(message ?? "Unexpected error occurred. Please try again.");
     }
   };
 
@@ -100,6 +136,7 @@ export default function SignIn() {
               setPassword={setPassword}
               username={username}
               setUsername={setUsername}
+              signUpError={signUpError}
             />
           </Stack>
         </Stack>
