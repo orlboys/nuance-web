@@ -23,7 +23,8 @@ import { useSearchParams } from "next/navigation";
 import ConsentModal from "./components/ConsentModal";
 import FeedbackModal from "./components/UserFeedbackModal";
 
-export default function ResultsPage() {
+// Separate component for the search params logic
+function ResultsPageContent() {
   const theme = useTheme();
 
   const searchParams = useSearchParams();
@@ -297,139 +298,146 @@ export default function ResultsPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Stack
-        component="main"
-        alignItems="center"
-        sx={{
-          bgcolor: theme.palette.background.default,
-          color: theme.palette.text.primary,
-          minHeight: "100vh",
-          width: "100vw",
-          py: 4,
-        }}
-      >
-        <Container>
-          <AnimatePresence>
-            {thankYou && (
-              <motion.div
-                style={{
-                  position: "fixed",
-                  top: 50,
-                  left: 0,
-                  width: "100%",
-                  zIndex: 1300,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Alert>
-                  Thank you for your feedback - it will contribute to the next
-                  version of Nuance.
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <Grid container spacing={4}>
-            {/* Title */}
-            <Grid size={12} sx={{ mt: 4, mb: 2 }}>
-              <Title />
+    <Stack
+      component="main"
+      alignItems="center"
+      sx={{
+        bgcolor: theme.palette.background.default,
+        color: theme.palette.text.primary,
+        minHeight: "100vh",
+        width: "100vw",
+        py: 4,
+      }}
+    >
+      <Container>
+        <AnimatePresence>
+          {thankYou && (
+            <motion.div
+              style={{
+                position: "fixed",
+                top: 50,
+                left: 0,
+                width: "100%",
+                zIndex: 1300,
+                display: "flex",
+                justifyContent: "center",
+              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Alert>
+                Thank you for your feedback - it will contribute to the next
+                version of Nuance.
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Grid container spacing={4}>
+          {/* Title */}
+          <Grid size={12} sx={{ mt: 4, mb: 2 }}>
+            <Title />
+          </Grid>
+
+          {/* Input Text and Bias Analysis Side-by-Side */}
+          <Grid container spacing={4} width={"100%"}>
+            {/* Left side: Analyzed Text */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography variant="h6" mb={3}>
+                Enter Text to Analyze
+              </Typography>
+              <TextField
+                label="Your text"
+                multiline
+                rows={10}
+                fullWidth
+                variant="outlined"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                disabled={!!resultId}
+              />
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleAnalysisSubmit}
+                    disabled={!text.trim() || !!resultId}
+                  >
+                    <ShinyText
+                      text={analyzing ? "Analyzing..." : "Analyze Text"}
+                      disabled={!!text.trim()}
+                      color={text.trim() ? "primary" : undefined}
+                    />
+                  </Button>
+                </motion.div>
+              </Box>
             </Grid>
 
-            {/* Input Text and Bias Analysis Side-by-Side */}
-            <Grid container spacing={4} width={"100%"}>
-              {/* Left side: Analyzed Text */}
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Typography variant="h6" mb={3}>
-                  Enter Text to Analyze
+            {/* Right side: Result */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              {error ? (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              ) : result ? (
+                <>
+                  <BiasResultCard
+                    value={formatCompound(result.bias.compound)}
+                    confidence={Number(result.bias.confidence.toPrecision(2))}
+                    loading={analyzing}
+                    onOpenFeedback={handleOpenFeedback}
+                    // prediction={result.bias.prediction}
+                  />
+                </>
+              ) : analyzing ? (
+                <ResultSkeleton />
+              ) : (
+                <Typography variant="body1" color="text.secondary">
+                  The bias analysis result will appear here after submission.
                 </Typography>
-                <TextField
-                  label="Your text"
-                  multiline
-                  rows={10}
-                  fullWidth
-                  variant="outlined"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  disabled={!!resultId}
-                />
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      onClick={handleAnalysisSubmit}
-                      disabled={!text.trim() || !!resultId}
-                    >
-                      <ShinyText
-                        text={analyzing ? "Analyzing..." : "Analyze Text"}
-                        disabled={!!text.trim()}
-                        color={text.trim() ? "primary" : undefined}
-                      />
-                    </Button>
-                  </motion.div>
-                </Box>
-              </Grid>
-
-              {/* Right side: Result */}
-              <Grid size={{ xs: 12, md: 6 }}>
-                {error ? (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                ) : result ? (
-                  <>
-                    <BiasResultCard
-                      value={formatCompound(result.bias.compound)}
-                      confidence={Number(result.bias.confidence.toPrecision(2))}
-                      loading={analyzing}
-                      onOpenFeedback={handleOpenFeedback}
-                      // prediction={result.bias.prediction}
-                    />
-                  </>
-                ) : analyzing ? (
-                  <ResultSkeleton />
-                ) : (
-                  <Typography variant="body1" color="text.secondary">
-                    The bias analysis result will appear here after submission.
-                  </Typography>
-                )}
-              </Grid>
+              )}
             </Grid>
           </Grid>
-          <Alert
-            severity={"info"}
-            sx={{ maxWidth: "90%", mx: "auto", mt: 4 }}
-            variant="outlined"
-            icon={false}
-          >
-            <Typography variant="body2" color="text.secondary">
-              This tool is for educational purposes only. It does not claim to
-              provide professional Bias Analysis or Legal Advice. Always
-              double-check results and consult with a qualified professional for
-              serious matters.
-            </Typography>
-          </Alert>
-          <ConsentModal
-            handleConsentAccept={handleConsentAccept}
-            handleConsentDecline={handleConsentDecline}
-            showConsentModal={showConsentModal}
-          />
-          <FeedbackModal
-            open={feedbackOpen}
-            onClose={handleCloseFeedback}
-            handleSubmit={handleFeedbackSubmit}
-          />
-        </Container>
-      </Stack>
+        </Grid>
+        <Alert
+          severity={"info"}
+          sx={{ maxWidth: "90%", mx: "auto", mt: 4 }}
+          variant="outlined"
+          icon={false}
+        >
+          <Typography variant="body2" color="text.secondary">
+            This tool is for educational purposes only. It does not claim to
+            provide professional Bias Analysis or Legal Advice. Always
+            double-check results and consult with a qualified professional for
+            serious matters.
+          </Typography>
+        </Alert>
+        <ConsentModal
+          handleConsentAccept={handleConsentAccept}
+          handleConsentDecline={handleConsentDecline}
+          showConsentModal={showConsentModal}
+        />
+        <FeedbackModal
+          open={feedbackOpen}
+          onClose={handleCloseFeedback}
+          handleSubmit={handleFeedbackSubmit}
+        />
+      </Container>
+    </Stack>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResultsPageContent />
     </Suspense>
   );
 }
