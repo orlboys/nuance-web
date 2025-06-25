@@ -10,6 +10,7 @@ import {
   Typography,
   Stack,
   Divider,
+  Link,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Meter } from "@/components/ui/Gauge";
@@ -19,7 +20,7 @@ interface BiasResultCardProps {
   value: number;
   confidence: number; // optional, used for the confidence level of the bias prediction
   loading: boolean;
-  handleSubmit: () => Promise<void>;
+  onOpenFeedback: () => void;
   // prediction: number; // kind of a backup for the getBiasInfo function, its the class that is actually guessed by the model [0, 1, 2]
 }
 
@@ -27,6 +28,7 @@ export function BiasResultCard({
   value,
   confidence,
   loading,
+  onOpenFeedback,
 }: BiasResultCardProps) {
   const theme = useTheme();
 
@@ -158,21 +160,19 @@ export function BiasResultCard({
                       >
                         <Meter value={value} fillColor={biasInfo.color} />
                       </Box>
-                      <Box sx={{ mt: 2, textAlign: "center" }}>
-                        <Chip
-                          sx={{
-                            mt: 2,
-                            maxWidth: "90%",
-                            mx: "auto",
-                            textAlign: "center",
-                          }}
-                          label={`Confidence: ${(confidence * 100).toFixed(
-                            2
-                          )}%`}
-                          variant="outlined"
-                        />
-                      </Box>
                     </motion.div>
+                    <Box sx={{ my: 2, textAlign: "center" }}>
+                      <Chip
+                        sx={{
+                          mt: 2,
+                          maxWidth: "90%",
+                          mx: "auto",
+                          textAlign: "center",
+                        }}
+                        label={`Confidence: ${(confidence * 100).toFixed(2)}%`}
+                        variant="outlined"
+                      />
+                    </Box>
                   </motion.div>
                 </Box>
 
@@ -233,6 +233,41 @@ export function BiasResultCard({
             )
           )}
         </Stack>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            "& .MuiButton-outlined": {
+              borderColor: theme.palette.divider,
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+                backgroundColor: theme.palette.action.hover,
+              },
+            },
+          }}
+        >
+          <Typography
+            sx={{
+              textAlign: "center",
+              color: theme.palette.text.secondary,
+            }}
+          >
+            Incorrect analysis?{" "}
+            <Link
+              onClick={onOpenFeedback}
+              variant="body2"
+              sx={{
+                color: theme.palette.primary.main,
+                "&:hover": {
+                  color: theme.palette.primary.light,
+                },
+              }}
+            >
+              Provide Feedback
+            </Link>
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );

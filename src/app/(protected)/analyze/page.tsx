@@ -15,11 +15,13 @@ import {
 } from "@mui/material";
 import { Title } from "./components/Title";
 import { BiasResultCard } from "./components/BiasResult";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import ShinyText from "@/components/ui/ShinyText";
 import { apiClient, BiasResponse } from "@/lib/api";
 import { supabase } from "@/lib/supabaseClient";
 import { useSearchParams } from "next/navigation";
+import ConsentModal from "./components/ConsentModal";
+import FeedbackModal from "./components/UserFeedbackModal";
 
 export default function ResultsPage() {
   const theme = useTheme();
@@ -31,6 +33,13 @@ export default function ResultsPage() {
   const [result, setResult] = useState<BiasResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingResult, setLoadingResult] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const handleOpenFeedback = () => setFeedbackOpen(true);
+  const handleCloseFeedback = () => setFeedbackOpen(false);
+  const [pendingBiasResult, setPendingBiasResult] =
+    useState<BiasResponse | null>(null);
+  const [thankYou, setThankYou] = useState(false);
 
   useEffect(() => {
     if (!resultId) return;
@@ -58,21 +67,45 @@ export default function ResultsPage() {
     fetchResultById();
   }, [resultId]);
 
+  // Thank you fade out timer
+  useEffect(() => {
+    if (thankYou) {
+      const timer = setTimeout(() => {
+        setThankYou(false);
+      }, 3000); // Dismiss after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [thankYou]);
+
   // This function handles the submission of the text for bias analysis.
   // It uses the API client to call the bias analysis endpoint.
   const handleAnalysisSubmit = async () => {
     if (resultId) return;
+
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+    const isFirstTimeUser = await supabase
+      .from("profiles")
+      .select("first_time_user")
+      .eq("id", userId)
+      .single();
+
     if (!text.trim()) {
       setError("Please enter some text to analyze.");
       return;
     } // Prevent submission of empty text
-
     setAnalyzing(true);
     try {
       const biasData = await apiClient.analyzeBias(text.trim());
       setResult(biasData);
-      console.log("Bias analysis result:", biasData);
-      handleSaveSubmit(biasData);
+      if (isFirstTimeUser) {
+        setPendingBiasResult(biasData);
+        setShowConsentModal(true);
+      } else {
+        console.log("Bias analysis result:", biasData);
+        handleSaveSubmit(biasData);
+      }
       setError(null);
     } catch (error) {
       console.error("Error during bias analysis:", error);
@@ -86,6 +119,21 @@ export default function ResultsPage() {
     }
   };
 
+  const handleConsentAccept = () => {
+    if (pendingBiasResult) {
+      handleSaveSubmit(pendingBiasResult);
+      setPendingBiasResult(null);
+      setShowConsentModal(false);
+      // update user profile to not show again
+      supabase.from("profiles").update({ first_time_user: false });
+    }
+  };
+
+  const handleConsentDecline = () => {
+    setShowConsentModal(false);
+    setPendingBiasResult(null);
+  };
+
   // Handles saving the results to database
   const handleSaveSubmit = async (biasResult = result) => {
     // Parameter is required b/c handleAnalysisSubmit is asynchronous
@@ -95,6 +143,7 @@ export default function ResultsPage() {
       setError("User not authenticated.");
       return;
     }
+
     if (!biasResult || typeof biasResult.bias?.compound !== "number") {
       setError("No valid analysis result to save.");
       return;
@@ -107,6 +156,47 @@ export default function ResultsPage() {
     });
     if (insertError) {
       setError(insertError.message);
+    }
+  };
+
+  const handleFeedbackSubmit = async (
+    rating: number,
+    feedback: string,
+    biasResult = result
+  ) => {
+    try {
+      const user = await supabase.auth.getUser();
+      const userId = user.data.user?.id;
+      if (!userId) {
+        setError("User not authenticated.");
+        return;
+      }
+      const { error: insertError } = await supabase.from("feedback").insert({
+        user_id: userId,
+        detected_label:
+          typeof biasResult?.bias.compound === "number"
+            ? biasResult.bias.compound < 45
+              ? 0
+              : biasResult.bias.compound >= 45 && biasResult.bias.compound <= 65
+              ? 1
+              : biasResult.bias.compound > 65
+              ? 2
+              : null
+            : null,
+        correct_label: rating,
+        text: text,
+        feedback_text: feedback,
+        created_at: new Date().toISOString(),
+      });
+      if (insertError) {
+        setError(insertError.message);
+      }
+      setThankYou(true);
+    } catch (err) {
+      setError(
+        "Failed to submit feedback. " +
+          (err instanceof Error ? err.message : "")
+      );
     }
   };
 
@@ -219,6 +309,30 @@ export default function ResultsPage() {
       }}
     >
       <Container>
+        <AnimatePresence>
+          {thankYou && (
+            <motion.div
+              style={{
+                position: "fixed",
+                top: 50,
+                left: 0,
+                width: "100%",
+                zIndex: 1300,
+                display: "flex",
+                justifyContent: "center",
+              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Alert>
+                Thank you for your feedback - it will contribute to the next
+                version of Nuance.
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Grid container spacing={4}>
           {/* Title */}
           <Grid size={12} sx={{ mt: 4, mb: 2 }}>
@@ -275,8 +389,8 @@ export default function ResultsPage() {
                   <BiasResultCard
                     value={formatCompound(result.bias.compound)}
                     confidence={Number(result.bias.confidence.toPrecision(2))}
-                    loading={false}
-                    handleSubmit={handleSaveSubmit}
+                    loading={analyzing}
+                    onOpenFeedback={handleOpenFeedback}
                     // prediction={result.bias.prediction}
                   />
                 </>
@@ -303,6 +417,16 @@ export default function ResultsPage() {
             serious matters.
           </Typography>
         </Alert>
+        <ConsentModal
+          handleConsentAccept={handleConsentAccept}
+          handleConsentDecline={handleConsentDecline}
+          showConsentModal={showConsentModal}
+        />
+        <FeedbackModal
+          open={feedbackOpen}
+          onClose={handleCloseFeedback}
+          handleSubmit={handleFeedbackSubmit}
+        />
       </Container>
     </Stack>
   );
