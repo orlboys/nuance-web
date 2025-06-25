@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   AppBar,
@@ -12,8 +12,6 @@ import {
   Menu,
   MenuItem,
   Box,
-  Avatar,
-  Tooltip,
   useTheme,
   useMediaQuery,
   Drawer,
@@ -25,12 +23,10 @@ import {
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  AccountCircle,
   Home,
   Login,
   PersonAdd,
   Dashboard,
-  Settings,
   Logout,
 } from "@mui/icons-material";
 import { useUser } from "@/lib/hooks/useUser";
@@ -42,17 +38,23 @@ interface NavigationBarProps {
   userAvatar?: string;
 }
 
-export default function NavigationBar({
-  userName = "",
-  userAvatar = "",
-}: NavigationBarProps) {
+export default function NavigationBar({ userName = "" }: NavigationBarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, loading } = useUser(); // useUser hook to get user info.
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
   const router = useRouter();
+  const [mounted, setMounted] = useState(false); // Required to avoid hydration errors
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Only render User-Dependent UI after mount.
+  if (!mounted) {
+    return null;
+  }
   const onLogin = () => {
     router.push("/login");
   };
@@ -71,10 +73,6 @@ export default function NavigationBar({
   };
 
   const isLoggedIn = !loading && !!user; // Determine logged-in state based on user hook
-
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -160,27 +158,6 @@ export default function NavigationBar({
           </>
         ) : (
           <>
-            <ListItem
-              component={Link}
-              href="/dashboard"
-              onClick={handleMobileMenuToggle}
-              sx={{ textDecoration: "none", color: "inherit" }}
-            >
-              <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-                <Dashboard />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            <ListItem
-              component={Link}
-              href="/settings"
-              onClick={handleMobileMenuToggle}
-            >
-              <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-                <Settings />
-              </ListItemIcon>
-              <ListItemText primary="Settings" />
-            </ListItem>
             <ListItem
               onClick={() => {
                 onLogout?.();
@@ -287,37 +264,6 @@ export default function NavigationBar({
                 </>
               ) : (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Tooltip title="Account settings">
-                    <IconButton
-                      size="large"
-                      aria-label="account of current user"
-                      aria-controls="menu-appbar"
-                      aria-haspopup="true"
-                      onClick={handleMenu}
-                      color="inherit"
-                    >
-                      {userAvatar ? (
-                        <Avatar
-                          src={userAvatar}
-                          sx={{ width: 32, height: 32 }}
-                        />
-                      ) : (
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: theme.palette.primary.main,
-                          }}
-                        >
-                          {userName ? (
-                            userName.charAt(0).toUpperCase()
-                          ) : (
-                            <AccountCircle />
-                          )}
-                        </Avatar>
-                      )}
-                    </IconButton>
-                  </Tooltip>
                   <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}
@@ -357,17 +303,6 @@ export default function NavigationBar({
                         sx={{ mr: 1, color: theme.palette.primary.main }}
                       />
                       Dashboard
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleClose}
-                      component={Link}
-                      href="/settings"
-                      sx={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <Settings
-                        sx={{ mr: 1, color: theme.palette.primary.main }}
-                      />
-                      Settings
                     </MenuItem>
                     <Divider />
                     <MenuItem

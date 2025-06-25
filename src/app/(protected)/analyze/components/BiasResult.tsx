@@ -251,6 +251,7 @@ export function BiasResultCard({
                 backgroundColor: theme.palette.action.hover,
               },
             },
+            mt: 2,
           }}
         >
           <Typography

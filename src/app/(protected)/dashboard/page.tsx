@@ -471,9 +471,9 @@ export default function HomePage() {
                       />
                     </Box>
                     <Stack justifyContent="space-between" direction="row">
-                      <Typography variant="body1">
-                        {response.text.length > 80
-                          ? response.text.slice(0, 80) + "..."
+                      <Typography variant="body1" maxWidth={"60%"}>
+                        {response.text.length > 60
+                          ? response.text.slice(0, 53) + "..."
                           : response.text}
                       </Typography>
                       <Box>
