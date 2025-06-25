@@ -45,6 +45,23 @@ export default function HomePage() {
     router.push("/analyze?" + params.toString());
   }
 
+  async function handlePreviousAnalysisDelete(response: Response) {
+    const id = response.id;
+    try {
+      const { error } = await supabase.from("requests").delete().eq("id", id);
+      if (error) {
+        console.error("Failed to delete analysis:", error.message);
+        alert("Failed to delete analysis. Please try again.");
+      } else {
+        // Remove the deleted response from the UI
+        setResponses((prev) => (prev ? prev.filter((r) => r.id !== id) : null));
+      }
+    } catch (err) {
+      console.error("Unexpected error while deleting analysis:", err);
+      alert("An unexpected error occurred. Please try again.");
+    }
+  }
+
   function determineLabel(value: number) {
     if (value < 10) return "Far Left";
     if (value < 35) return "Left";
@@ -296,28 +313,41 @@ export default function HomePage() {
                         {formatDate(response.time)}
                       </Typography>
                       <Chip
-                        label={`${response.label} (${response.biasScore}%)`}
+                        label={`${response.label} (${response.biasScore.toFixed(
+                          2
+                        )}%)`}
                         size="small"
                         variant="outlined"
                         sx={{
                           borderColor: theme.palette.divider,
                           bgcolor: getBiasColor(response.label),
+                          minWidth: "20%",
                         }}
                       />
                     </Box>
                     <Stack justifyContent="space-between" direction="row">
                       <Typography variant="body1">
-                        {response.text.length > 100
-                          ? response.text.slice(0, 100) + "..."
+                        {response.text.length > 80
+                          ? response.text.slice(0, 80) + "..."
                           : response.text}
                       </Typography>
-                      <Button
-                        variant="outlined"
-                        sx={{ mt: 2, width: 50 }}
-                        onClick={() => handlePreviousAnalysisSubmit(response)}
-                      >
-                        Open
-                      </Button>
+                      <Box>
+                        <Button
+                          variant="outlined"
+                          color="warning"
+                          sx={{ mx: 2, mt: 2, width: 50 }}
+                          onClick={() => handlePreviousAnalysisDelete(response)}
+                        >
+                          Delete
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          sx={{ mt: 2, width: 50 }}
+                          onClick={() => handlePreviousAnalysisSubmit(response)}
+                        >
+                          Open
+                        </Button>
+                      </Box>
                     </Stack>
                   </CardContent>
                 </Card>

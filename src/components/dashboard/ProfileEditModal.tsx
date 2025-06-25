@@ -104,7 +104,7 @@ export default function ProfileEditModal({
         .update({
           username: formData.username,
           bio: formData.bio,
-          avatar_url: formData.avatar_url,
+          avatar_url: formData.avatar_url || profile.avatar_url,
         })
         .eq("id", userId);
 
@@ -120,14 +120,47 @@ export default function ProfileEditModal({
     }
   };
 
-  const handleAvatarChange = () => {
-    const mockNewAvatarUrl = `/placeholder.svg?height=100&width=100&text=${formData.username.charAt(
-      0
-    )}`;
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      // Set placeholder avatar if no file selected
+      setFormData((prev) => ({
+        ...prev,
+        avatar_url: "/placeholder-avatar.png", // Change to your placeholder path
+      }));
+      setErrors((prev) => ({ ...prev, avatar_url: undefined }));
+      return;
+    }
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData?.user?.id;
+    if (!userId) {
+      setErrors((prev) => ({ ...prev, avatar_url: "User not authenticated" }));
+      console.log("No user ID");
+      return;
+    }
+    const fileExt = file.name.split(".").pop();
+    const filePath = `avatars/${userId}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      setErrors((prev) => ({ ...prev, avatar_url: "Failed to upload avatar" }));
+      console.log("Upload error:", uploadError);
+      return;
+    }
+    // Use the full public URL
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const publicUrl = data.publicUrl;
+    console.log("Avatar uploaded, publicUrl:", publicUrl);
     setFormData((prev) => ({
       ...prev,
-      avatar_url: mockNewAvatarUrl,
+      avatar_url: publicUrl
+        ? publicUrl + `?t=${Date.now()}`
+        : "/placeholder-avatar.png",
     }));
+    setErrors((prev) => ({ ...prev, avatar_url: undefined }));
   };
 
   return (
@@ -148,6 +181,7 @@ export default function ProfileEditModal({
               sx={{ width: 100, height: 100 }}
             />
             <IconButton
+              component="label"
               sx={{
                 position: "absolute",
                 bottom: -5,
@@ -156,9 +190,14 @@ export default function ProfileEditModal({
                 backgroundColor: "background.paper",
                 "&:hover": { backgroundColor: "action.hover" },
               }}
-              onClick={handleAvatarChange}
             >
               <PhotoCameraIcon />
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleAvatarFileChange}
+              />
             </IconButton>
           </Box>
 
