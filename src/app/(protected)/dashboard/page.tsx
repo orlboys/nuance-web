@@ -14,6 +14,8 @@ import {
   Chip,
   useTheme,
   Stack,
+  Skeleton,
+  Theme,
 } from "@mui/material";
 import SplitText from "@/components/ui/SplitText";
 import EditIcon from "@mui/icons-material/Edit";
@@ -30,6 +32,122 @@ type Response = {
   biasScore: number;
   label: string;
 };
+
+// Skeleton Components
+const ProfileSkeleton = ({ theme }: { theme: Theme }) => (
+  <Paper
+    elevation={2}
+    sx={{
+      p: 3,
+      flex: { xs: "1", md: "0 0 300px" },
+      height: "fit-content",
+      background: theme.palette.background.paper,
+    }}
+  >
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        mb: 2,
+      }}
+    >
+      <Skeleton variant="text" width={80} height={32} />
+      <Skeleton
+        variant="rectangular"
+        width={60}
+        height={32}
+        sx={{ borderRadius: 1 }}
+      />
+    </Box>
+
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        mb: 3,
+      }}
+    >
+      <Skeleton variant="circular" width={100} height={100} sx={{ mb: 2 }} />
+      <Skeleton variant="text" width={120} height={28} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width={180} height={20} />
+    </Box>
+
+    <Skeleton variant="text" width="100%" height={20} sx={{ mb: 1 }} />
+    <Skeleton variant="text" width="80%" height={20} sx={{ mb: 1 }} />
+    <Skeleton variant="text" width="90%" height={20} />
+  </Paper>
+);
+
+const AnalysisCardSkeleton = ({ theme }: { theme: Theme }) => (
+  <Card sx={{ mb: 2, background: theme.palette.background.paper }}>
+    <CardContent>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
+      >
+        <Skeleton variant="text" width={120} height={20} />
+        <Skeleton
+          variant="rectangular"
+          width={120}
+          height={24}
+          sx={{ borderRadius: 12 }}
+        />
+      </Box>
+      <Stack justifyContent="space-between" direction="row">
+        <Box sx={{ flex: 1, mr: 2 }}>
+          <Skeleton variant="text" width="100%" height={24} sx={{ mb: 1 }} />
+          <Skeleton variant="text" width="70%" height={24} />
+        </Box>
+        <Box>
+          <Skeleton
+            variant="rectangular"
+            width={80}
+            height={36}
+            sx={{ mx: 2, mt: 2, borderRadius: 1 }}
+          />
+          <Skeleton
+            variant="rectangular"
+            width={80}
+            height={36}
+            sx={{ mt: 2, borderRadius: 1 }}
+          />
+        </Box>
+      </Stack>
+    </CardContent>
+  </Card>
+);
+
+const PreviousAnalysesSkeleton = ({ theme }: { theme: Theme }) => (
+  <Box sx={{ flex: 1 }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        mb: 3,
+        justifyContent: "space-between",
+      }}
+    >
+      <Skeleton variant="text" width={180} height={32} />
+      <Skeleton
+        variant="rectangular"
+        width={120}
+        height={36}
+        sx={{ borderRadius: 1 }}
+      />
+    </Box>
+
+    <List disablePadding>
+      {[...Array(3)].map((_, index) => (
+        <AnalysisCardSkeleton key={index} theme={theme} />
+      ))}
+    </List>
+  </Box>
+);
 
 export default function HomePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -80,6 +198,7 @@ export default function HomePage() {
       const userId = authData.user?.id;
       if (!userId) {
         setUser(null);
+        setLoading(false);
         return;
       }
       const { data, error } = await supabase
@@ -169,8 +288,34 @@ export default function HomePage() {
     }
     return "default";
   };
+
+  // Show loading skeleton while user data is being fetched
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Container
+        maxWidth="lg"
+        sx={{ py: 4, background: theme.palette.background.default }}
+      >
+        <Box sx={{ textAlign: "center", mb: 3 }}>
+          <Skeleton
+            variant="text"
+            width={200}
+            height={40}
+            sx={{ mx: "auto" }}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 4,
+          }}
+        >
+          <ProfileSkeleton theme={theme} />
+          <PreviousAnalysesSkeleton theme={theme} />
+        </Box>
+      </Container>
+    );
   }
   if (user == null) {
     return null;
