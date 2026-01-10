@@ -8,5 +8,3 @@
 - Nuance-Web is a website allowing users to detect political bias in text prompts.
 - Nuance-Web serves as the frontend framework for the greater Nuance project
 	- [*Checkout orlboys/Nuance-API for the Backend API and Training Info!*](https://github.com/orlboys/nuance-api)
-
- *Developed as part of the HSC Software Engineering course*
